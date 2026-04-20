@@ -1,0 +1,88 @@
+@page
+@model GymManagement.Web.Pages.SobreModel
+@{ ViewData["Title"] = "Sobre o Projeto"; }
+
+<div class="page-header"><div class="container"><h1><i class="bi bi-info-circle"></i>Sobre o Projeto</h1></div></div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header"><i class="bi bi-mortarboard me-2"></i>Identificação Académica</div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-5 text-muted small">Curso</dt>
+                    <dd class="col-7">Licenciatura em Eng. Informática</dd>
+                    <dt class="col-5 text-muted small">Disciplina</dt>
+                    <dd class="col-7">Desenvolvimento Web</dd>
+                    <dt class="col-5 text-muted small">Ano/Semestre</dt>
+                    <dd class="col-7">2º Ano, 2º Semestre</dd>
+                    <dt class="col-5 text-muted small">Ano Letivo</dt>
+                    <dd class="col-7">2024/2025</dd>
+                    <dt class="col-5 text-muted small">Autores</dt>
+                    <dd class="col-7"><strong>27217</strong> e <strong>24634</strong></dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header"><i class="bi bi-key me-2"></i>Credenciais de Acesso</div>
+            <div class="card-body">
+                <p class="mb-2"><strong>Administrador</strong></p>
+                <ul class="list-unstyled mb-3 ms-2">
+                    <li><i class="bi bi-envelope me-1 text-muted"></i>admin@gym.pt</li>
+                    <li><i class="bi bi-lock me-1 text-muted"></i>Admin123!</li>
+                    <li><span class="badge-admin">ADMIN</span> Acesso total</li>
+                </ul>
+                <p class="mb-2"><strong>Cliente</strong></p>
+                <ul class="list-unstyled ms-2">
+                    <li><i class="bi bi-envelope me-1 text-muted"></i>cliente@gym.pt</li>
+                    <li><i class="bi bi-lock me-1 text-muted"></i>Cliente123!</li>
+                    <li><span class="badge bg-secondary">CLIENTE</span> Ver e inscrever-se em aulas</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header"><i class="bi bi-stack me-2"></i>Tecnologias Utilizadas</div>
+            <div class="card-body">
+                <p class="mb-1"><strong>Backend / API</strong></p>
+                <ul class="mb-3">
+                    <li>ASP.NET Core 9.0 MVC (API REST)</li>
+                    <li>Entity Framework Core 9.0</li>
+                    <li>SignalR (notificações em tempo real)</li>
+                    <li>JWT (autenticação stateless)</li>
+                    <li>BCrypt.Net (hash de passwords)</li>
+                    <li>Swagger / OpenAPI (documentação)</li>
+                </ul>
+                <p class="mb-1"><strong>Frontend / Web App</strong></p>
+                <ul class="mb-0">
+                    <li>ASP.NET Core 9.0 Razor Pages</li>
+                    <li>Bootstrap 5.3 + Bootstrap Icons</li>
+                    <li>SignalR Client JS</li>
+                    <li>Google Fonts (Oswald, Inter)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header"><i class="bi bi-link-45deg me-2"></i>Referências e Bibliotecas</div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li><a href="https://docs.microsoft.com/aspnet/core" target="_blank">ASP.NET Core — Microsoft Docs</a></li>
+                    <li><a href="https://docs.microsoft.com/ef/core" target="_blank">Entity Framework Core — Microsoft Docs</a></li>
+                    <li><a href="https://docs.microsoft.com/aspnet/core/signalr" target="_blank">SignalR — Microsoft Docs</a></li>
+                    <li><a href="https://getbootstrap.com/docs/5.3" target="_blank">Bootstrap 5.3</a></li>
+                    <li><a href="https://icons.getbootstrap.com" target="_blank">Bootstrap Icons</a></li>
+                    <li><a href="https://github.com/BcryptNet/bcrypt.net" target="_blank">BCrypt.Net-Next (NuGet)</a></li>
+                    <li><a href="https://github.com/domaindrivendev/Swashbuckle.AspNetCore" target="_blank">Swashbuckle / Swagger (NuGet)</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,98 @@
+@page
+@model GymManagement.Web.Pages.DashboardModel
+@{ ViewData["Title"] = "Dashboard"; }
+
+<div class="page-header">
+    <div class="container">
+        <h1><i class="bi bi-speedometer2"></i>Dashboard — Administração</h1>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between">
+                <div><div class="number">@Model.TotalAulas</div><div class="label">Aulas no Horário</div></div>
+                <i class="bi bi-calendar3" style="font-size:2rem;color:#333"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between">
+                <div><div class="number">@Model.TotalPlanos</div><div class="label">Planos</div></div>
+                <i class="bi bi-journal-text" style="font-size:2rem;color:#333"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between">
+                <div><div class="number">@Model.TotalInstrutores</div><div class="label">Instrutores</div></div>
+                <i class="bi bi-person-badge" style="font-size:2rem;color:#333"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between">
+                <div><div class="number">@Model.AulasLotadas</div><div class="label">Aulas Lotadas</div></div>
+                <i class="bi bi-people" style="font-size:2rem;color:#333"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-calendar-week me-2"></i>Horário da Semana</div>
+            <div class="card-body p-0">
+                @if (Model.Aulas.Any())
+                {
+                    var dias = new[] { "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo" };
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead><tr><th>Dia</th><th>Hora</th><th>Aula</th><th>Instrutor</th><th>Sala</th><th>Vagas</th></tr></thead>
+                            <tbody>
+                                @foreach (var a in Model.Aulas)
+                                {
+                                    <tr>
+                                        <td><span class="badge bg-dark">@a.DiaSemanaLabel</span></td>
+                                        <td>@a.Hora – @a.HoraFim</td>
+                                        <td><strong>@a.Nome</strong></td>
+                                        <td>@a.Instrutor</td>
+                                        <td>@a.Sala</td>
+                                        <td>
+                                            @if (a.Lotada)
+                                                { <span class="badge bg-danger">Lotada</span> }
+                                            else
+                                                { <span class="badge bg-success">@a.VagasDisponiveis/@a.CapacidadeMaxima</span> }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center p-4">Sem aulas no horário.</p>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-lightning me-2"></i>Ações Rápidas</div>
+            <div class="card-body d-grid gap-2">
+                <a asp-page="/Aulas/Create"        class="btn btn-accent"><i class="bi bi-plus-circle me-2"></i>Nova Aula</a>
+                <a asp-page="/PlanosTreino/Create" class="btn btn-primary"><i class="bi bi-journal-plus me-2"></i>Novo Plano</a>
+                <a asp-page="/Instrutores/Index"   class="btn btn-primary"><i class="bi bi-person-badge me-2"></i>Gerir Instrutores</a>
+                <a asp-page="/Salas/Index"         class="btn btn-primary"><i class="bi bi-door-open me-2"></i>Gerir Salas</a>
+                <a asp-page="/Utilizadores/Index"  class="btn btn-primary"><i class="bi bi-people me-2"></i>Gerir Utilizadores</a>
+                <a asp-page="/Frequencias/Index"   class="btn btn-primary"><i class="bi bi-person-check me-2"></i>Ver Frequências</a>
+            </div>
+        </div>
+    </div>
+</div>

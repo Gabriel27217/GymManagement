@@ -1,0 +1,105 @@
+@page
+@model GymManagement.Web.Pages.Aulas.IndexModel
+@{
+    ViewData["Title"] = "Horário de Aulas";
+    var sessaoRole = HttpContext.Session.GetString("Role");
+    var sessaoJwt  = HttpContext.Session.GetString("JWT");
+    var dias = new[] { "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo" };
+}
+
+<div class="page-header">
+    <div class="container">
+        <h1><i class="bi bi-calendar3"></i>Horário Semanal</h1>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="text-muted small">@Model.Aulas.Count aula(s) no horário</span>
+    @if (sessaoRole == "Admin")
+    {
+        <a asp-page="Create" class="btn btn-accent btn-sm">
+            <i class="bi bi-plus-circle me-1"></i>Nova Aula
+        </a>
+    }
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-bordered mb-0" id="horario">
+                <thead>
+                    <tr>
+                        <th style="width:80px;background:#0d0d0d;color:#e8ff00;font-size:.8rem">HORA</th>
+                        @foreach (var dia in dias)
+                        {
+                            <th style="background:#0d0d0d;color:#e8ff00;font-size:.8rem;text-align:center">@dia.ToUpper()</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int h = 7; h <= 22; h++)
+                    {
+                        <tr style="height:52px">
+                            <td style="font-size:.75rem;color:#999;vertical-align:middle;font-weight:500;background:#fafafa">@($"{h:00}:00")</td>
+                            @for (int d = 1; d <= 7; d++)
+                            {
+                                var aulasSlot = Model.Aulas.Where(a => a.DiaSemana == d && int.Parse(a.Hora.Split(':')[0]) == h).ToList();
+                                <td style="vertical-align:top;padding:3px;background:#fff">
+                                    @foreach (var aula in aulasSlot)
+                                    {
+                                        <div class="aula-card @(aula.Lotada ? "lotada" : "")">
+                                            <div class="aula-nome">@aula.Nome</div>
+                                            <div class="aula-info">@aula.Hora–@aula.HoraFim · @aula.Sala</div>
+                                            <div class="aula-info">@aula.Instrutor</div>
+                                            <div class="aula-vagas">
+                                                @if (aula.Lotada)
+                                                {
+                                                    <span class="badge bg-danger" style="font-size:.65rem">Lotada</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-success" style="font-size:.65rem">@aula.VagasDisponiveis vagas</span>
+                                                }
+                                                @if (!string.IsNullOrEmpty(sessaoJwt) && sessaoRole != "Admin" && !aula.Lotada)
+                                                {
+                                                    <a asp-page="Inscrever" asp-route-id="@aula.Id" class="btn btn-accent btn-sm py-0 px-1 ms-1" style="font-size:.65rem">
+                                                        <i class="bi bi-person-plus"></i>
+                                                    </a>
+                                                }
+                                            </div>
+                                            @if (sessaoRole == "Admin")
+                                            {
+                                                <div class="aula-actions">
+                                                    <a asp-page="Edit" asp-route-id="@aula.Id" class="btn btn-outline-primary btn-sm py-0 px-1" style="font-size:.65rem"><i class="bi bi-pencil"></i></a>
+                                                    <a asp-page="Delete" asp-route-id="@aula.Id" class="btn btn-outline-danger btn-sm py-0 px-1" style="font-size:.65rem"><i class="bi bi-trash"></i></a>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .aula-card {
+        background: #0d0d0d;
+        color: #fff;
+        border-left: 3px solid #e8ff00;
+        border-radius: 3px;
+        padding: 4px 6px;
+        margin-bottom: 2px;
+        font-size: .75rem;
+    }
+    .aula-card.lotada { border-left-color: #ff4444; opacity: .85; }
+    .aula-nome { font-weight: 600; color: #e8ff00; line-height: 1.2; }
+    .aula-info { color: #aaa; font-size: .7rem; line-height: 1.2; }
+    .aula-vagas { margin-top: 2px; }
+    .aula-actions { margin-top: 2px; }
+    #horario td, #horario th { border-color: #eee !important; }
+</style>

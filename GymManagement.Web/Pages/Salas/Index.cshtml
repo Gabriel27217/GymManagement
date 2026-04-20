@@ -1,0 +1,29 @@
+@page
+@model GymManagement.Web.Pages.Salas.IndexModel
+@{ ViewData["Title"] = "Salas"; }
+<div class="page-header"><div class="container"><h1><i class="bi bi-door-open"></i>Salas</h1></div></div>
+<div class="d-flex justify-content-end mb-3">
+    <a asp-page="Create" class="btn btn-accent btn-sm"><i class="bi bi-plus-circle me-1"></i>Nova Sala</a>
+</div>
+<div class="card"><div class="card-body p-0"><div class="table-responsive">
+<table class="table table-hover mb-0">
+    <thead><tr><th>Nome</th><th>Capacidade</th><th>Descrição</th><th>Aulas</th><th>Estado</th><th class="text-end">Ações</th></tr></thead>
+    <tbody>
+        @foreach (var s in Model.Salas)
+        {
+            <tr>
+                <td><strong>@s.Nome</strong></td>
+                <td>@s.CapacidadeMaxima pessoas</td>
+                <td>@(s.Descricao ?? "—")</td>
+                <td><span class="badge bg-dark">@s.TotalAulas</span></td>
+                <td>@if (s.Ativa) { <span class="badge bg-success">Ativa</span> } else { <span class="badge bg-secondary">Inativa</span> }</td>
+                <td class="text-end">
+                    <a asp-page="Edit" asp-route-id="@s.Id" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></a>
+                    <a asp-page="Delete" asp-route-id="@s.Id" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                </td>
+            </tr>
+        }
+        @if (!Model.Salas.Any()) { <tr><td colspan="6" class="text-center text-muted py-4">Nenhuma sala encontrada.</td></tr> }
+    </tbody>
+</table>
+</div></div></div>

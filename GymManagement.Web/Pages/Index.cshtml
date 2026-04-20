@@ -1,0 +1,84 @@
+@page
+@model GymManagement.Web.Pages.IndexModel
+@{
+    ViewData["Title"] = "Página Inicial";
+}
+
+<div class="page-header">
+    <div class="container">
+        <h1><i class="bi bi-house"></i>Bem-vindo ao GymManagement</h1>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-8">
+        <div class="card h-100">
+            <div class="card-header"><i class="bi bi-calendar-week me-2"></i>Próximas Aulas</div>
+            <div class="card-body p-0">
+                @if (Model.ProximasAulas.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr><th>Aula</th><th>Data/Hora</th><th>Instrutor</th><th>Sala</th><th>Vagas</th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var a in Model.ProximasAulas)
+                                {
+                                    <tr>
+                                        <td><strong>@a.Nome</strong></td>
+                                        <td>
+                                            <span class="badge bg-dark">@a.DiaSemanaLabel</span>
+                                            @a.Hora
+                                        </td>
+                                        <td>@a.Instrutor</td>
+                                        <td>@a.Sala</td>
+                                        <td>
+                                            @if (a.Lotada)
+                                                { <span class="badge bg-danger">Lotada</span> }
+                                            else
+                                                { <span class="badge bg-success">@a.VagasDisponiveis vagas</span> }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center p-4">Sem aulas agendadas.</p>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header"><i class="bi bi-lightning me-2"></i>Acesso Rápido</div>
+            <div class="card-body d-grid gap-2">
+                <a asp-page="/Aulas/Index" class="btn btn-accent">
+                    <i class="bi bi-calendar3 me-2"></i>Ver Todas as Aulas
+                </a>
+                <a asp-page="/PlanosTreino/Index" class="btn btn-primary">
+                    <i class="bi bi-journal-text me-2"></i>Planos de Treino
+                </a>
+                @if (string.IsNullOrEmpty(ViewContext.HttpContext.Session.GetString("JWT")))
+                {
+                    <hr class="my-1" />
+                    <a asp-page="/Account/Login" class="btn btn-outline-dark">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Entrar
+                    </a>
+                    <a asp-page="/Account/Register" class="btn btn-outline-dark">
+                        <i class="bi bi-person-plus me-2"></i>Registar
+                    </a>
+                }
+                else
+                {
+                    <a asp-page="/MinhasInscricoes" class="btn btn-primary">
+                        <i class="bi bi-clipboard-check me-2"></i>As Minhas Inscrições
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

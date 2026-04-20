@@ -1,0 +1,46 @@
+@* MinhasInscricoes.cshtml *@
+@page
+@model GymManagement.Web.Pages.MinhasInscricoesModel
+@{ ViewData["Title"] = "As Minhas Aulas"; }
+
+<div class="page-header"><div class="container"><h1><i class="bi bi-clipboard-check"></i>As Minhas Aulas</h1></div></div>
+
+@if (!string.IsNullOrEmpty(HttpContext.Session.GetString("JWT")))
+{
+    <div class="card">
+        <div class="card-body p-0">
+            @if (Model.Inscricoes.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead><tr><th>Aula</th><th>Data/Hora</th><th>Instrutor</th><th>Sala</th><th>Ações</th></tr></thead>
+                        <tbody>
+                            @foreach (var i in Model.Inscricoes)
+                            {
+                                <tr>
+                                    <td><strong>@i.GetProperty("aula").GetProperty("nome").GetString()</strong></td>
+                                    <td>@DateTime.Parse(i.GetProperty("aula").GetProperty("dataHora").GetString()!).ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@i.GetProperty("aula").GetProperty("instrutor").GetString()</td>
+                                    <td>@i.GetProperty("aula").GetProperty("sala").GetString()</td>
+                                    <td>
+                                        <a asp-page="/Aulas/CancelarInscricao" asp-route-id="@i.GetProperty("aula").GetProperty("id").GetInt32()" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-x-circle me-1"></i>Cancelar
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted text-center p-4">Ainda não tens inscrições. <a asp-page="/Aulas/Index">Ver aulas disponíveis</a></p>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning"><i class="bi bi-lock me-2"></i>Tens de <a asp-page="/Account/Login">iniciar sessão</a> para ver as tuas inscrições.</div>
+}
