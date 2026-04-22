@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GymManagement.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class RebuildInitial : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -39,6 +39,7 @@ namespace GymManagement.Data.Migrations
                     Nome = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Descricao = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     DuracaoMinutos = table.Column<int>(type: "int", nullable: false),
+                    Objetivo = table.Column<int>(type: "int", nullable: false),
                     Nivel = table.Column<int>(type: "int", nullable: false),
                     DataCriacao = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Ativo = table.Column<bool>(type: "bit", nullable: false)
@@ -90,9 +91,10 @@ namespace GymManagement.Data.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Nome = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    DataHora = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Categoria = table.Column<int>(type: "int", nullable: false),
+                    DiaSemana = table.Column<int>(type: "int", nullable: false),
+                    Hora = table.Column<TimeOnly>(type: "time", nullable: false),
                     DuracaoMinutos = table.Column<int>(type: "int", nullable: false),
-                    PlanoTreinoId = table.Column<int>(type: "int", nullable: false),
                     InstrutorId = table.Column<int>(type: "int", nullable: false),
                     SalaId = table.Column<int>(type: "int", nullable: false),
                     Ativa = table.Column<bool>(type: "bit", nullable: false)
@@ -104,12 +106,6 @@ namespace GymManagement.Data.Migrations
                         name: "FK_Aulas_Instrutores_InstrutorId",
                         column: x => x.InstrutorId,
                         principalTable: "Instrutores",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Aulas_PlanosTreino_PlanoTreinoId",
-                        column: x => x.PlanoTreinoId,
-                        principalTable: "PlanosTreino",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -136,6 +132,43 @@ namespace GymManagement.Data.Migrations
                     table.PrimaryKey("PK_Frequencias", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Frequencias_Utilizadores_UtilizadorId",
+                        column: x => x.UtilizadorId,
+                        principalTable: "Utilizadores",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PlanosTreinoAluno",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PlanoTreinoId = table.Column<int>(type: "int", nullable: false),
+                    UtilizadorId = table.Column<int>(type: "int", nullable: false),
+                    InstrutorId = table.Column<int>(type: "int", nullable: true),
+                    DataInicio = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DataFim = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Observacoes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Ativo = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PlanosTreinoAluno", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PlanosTreinoAluno_Instrutores_InstrutorId",
+                        column: x => x.InstrutorId,
+                        principalTable: "Instrutores",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "FK_PlanosTreinoAluno_PlanosTreino_PlanoTreinoId",
+                        column: x => x.PlanoTreinoId,
+                        principalTable: "PlanosTreino",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PlanosTreinoAluno_Utilizadores_UtilizadorId",
                         column: x => x.UtilizadorId,
                         principalTable: "Utilizadores",
                         principalColumn: "Id",
@@ -175,18 +208,18 @@ namespace GymManagement.Data.Migrations
                 values: new object[,]
                 {
                     { 1, true, "carlos@gym.pt", "Musculação", "Carlos Silva", "961000001" },
-                    { 2, true, "ana@gym.pt", "Yoga", "Ana Ferreira", "961000002" },
-                    { 3, true, "rui@gym.pt", "Spinning", "Rui Costa", "961000003" }
+                    { 2, true, "ana@gym.pt", "Yoga / Pilates", "Ana Ferreira", "961000002" },
+                    { 3, true, "rui@gym.pt", "Spinning / Cardio", "Rui Costa", "961000003" }
                 });
 
             migrationBuilder.InsertData(
                 table: "PlanosTreino",
-                columns: new[] { "Id", "Ativo", "DataCriacao", "Descricao", "DuracaoMinutos", "Nivel", "Nome" },
+                columns: new[] { "Id", "Ativo", "DataCriacao", "Descricao", "DuracaoMinutos", "Nivel", "Nome", "Objetivo" },
                 values: new object[,]
                 {
-                    { 1, true, new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Treino de força e hipertrofia muscular", 60, 1, "Musculação" },
-                    { 2, true, new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Relaxamento, flexibilidade e equilíbrio", 45, 0, "Yoga" },
-                    { 3, true, new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Cardio intensivo em bicicleta estática", 50, 2, "Spinning" }
+                    { 1, true, new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Plano para quem está a começar. Foco em técnica e adaptação.", 60, 0, "Iniciação à Musculação", 0 },
+                    { 2, true, new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Combinação de cardio e musculação para queima calórica.", 75, 1, "Perda de Peso", 1 },
+                    { 3, true, new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Treino de força e hipertrofia muscular progressiva.", 90, 2, "Ganho de Massa", 2 }
                 });
 
             migrationBuilder.InsertData(
@@ -200,25 +233,29 @@ namespace GymManagement.Data.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "Aulas",
-                columns: new[] { "Id", "Ativa", "DataHora", "DuracaoMinutos", "InstrutorId", "Nome", "PlanoTreinoId", "SalaId" },
+                table: "Utilizadores",
+                columns: new[] { "Id", "Ativo", "DataRegisto", "Email", "Nome", "PasswordHash", "Role", "Telefone" },
                 values: new object[,]
                 {
-                    { 1, true, new DateTime(2025, 6, 1, 18, 0, 0, 0, DateTimeKind.Unspecified), 60, 1, "Musculação Avançada", 1, 1 },
-                    { 2, true, new DateTime(2025, 6, 2, 19, 0, 0, 0, DateTimeKind.Unspecified), 45, 2, "Yoga Relaxante", 2, 2 },
-                    { 3, true, new DateTime(2025, 6, 3, 20, 0, 0, 0, DateTimeKind.Unspecified), 50, 3, "Spinning Intensivo", 3, 3 },
-                    { 4, true, new DateTime(2025, 6, 5, 9, 0, 0, 0, DateTimeKind.Unspecified), 45, 2, "Yoga Manhã", 2, 2 }
+                    { 1, true, new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin@gym.pt", "Administrador", "$2a$11$1DV1gt4DimgCp5WP48l.EuPYufyZxhuj2uUD6XJcv5tR0ak5cOhIa", 0, null },
+                    { 2, true, new DateTime(2024, 9, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), "cliente@gym.pt", "João Cliente", "$2a$11$1DV1gt4DimgCp5WP48l.EuPYufyZxhuj2uUD6XJcv5tR0ak5cOhIa", 1, "912345678" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Aulas",
+                columns: new[] { "Id", "Ativa", "Categoria", "DiaSemana", "DuracaoMinutos", "Hora", "InstrutorId", "Nome", "SalaId" },
+                values: new object[,]
+                {
+                    { 1, true, 4, 1, 60, new TimeOnly(18, 0, 0), 1, "Musculação Avançada", 1 },
+                    { 2, true, 1, 2, 45, new TimeOnly(19, 0, 0), 2, "Yoga Relaxante", 2 },
+                    { 3, true, 3, 3, 50, new TimeOnly(20, 0, 0), 3, "Spinning Intensivo", 3 },
+                    { 4, true, 2, 4, 45, new TimeOnly(9, 0, 0), 2, "Pilates Manhã", 2 }
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Aulas_InstrutorId",
                 table: "Aulas",
                 column: "InstrutorId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Aulas_PlanoTreinoId",
-                table: "Aulas",
-                column: "PlanoTreinoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Aulas_SalaId",
@@ -242,6 +279,21 @@ namespace GymManagement.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_PlanosTreinoAluno_InstrutorId",
+                table: "PlanosTreinoAluno",
+                column: "InstrutorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PlanosTreinoAluno_PlanoTreinoId",
+                table: "PlanosTreinoAluno",
+                column: "PlanoTreinoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PlanosTreinoAluno_UtilizadorId",
+                table: "PlanosTreinoAluno",
+                column: "UtilizadorId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Utilizadores_Email",
                 table: "Utilizadores",
                 column: "Email",
@@ -258,16 +310,19 @@ namespace GymManagement.Data.Migrations
                 name: "Inscricoes");
 
             migrationBuilder.DropTable(
+                name: "PlanosTreinoAluno");
+
+            migrationBuilder.DropTable(
                 name: "Aulas");
+
+            migrationBuilder.DropTable(
+                name: "PlanosTreino");
 
             migrationBuilder.DropTable(
                 name: "Utilizadores");
 
             migrationBuilder.DropTable(
                 name: "Instrutores");
-
-            migrationBuilder.DropTable(
-                name: "PlanosTreino");
 
             migrationBuilder.DropTable(
                 name: "Salas");

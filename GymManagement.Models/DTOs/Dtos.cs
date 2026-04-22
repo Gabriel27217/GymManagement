@@ -31,12 +31,12 @@ namespace GymManagement.Models.DTOs
     {
         public int Id { get; set; }
         public string Nome { get; set; } = string.Empty;
-        public int DiaSemana { get; set; }          // 1=Segunda ... 7=Domingo
+        public string Categoria { get; set; } = string.Empty;
+        public int DiaSemana { get; set; }
         public string DiaSemanaLabel { get; set; } = string.Empty;
-        public string Hora { get; set; } = string.Empty;     // "HH:mm"
-        public string HoraFim { get; set; } = string.Empty;  // "HH:mm"
+        public string Hora { get; set; } = string.Empty;
+        public string HoraFim { get; set; } = string.Empty;
         public int DuracaoMinutos { get; set; }
-        public string PlanoTreino { get; set; } = string.Empty;
         public string Instrutor { get; set; } = string.Empty;
         public string Sala { get; set; } = string.Empty;
         public int CapacidadeMaxima { get; set; }
@@ -49,10 +49,10 @@ namespace GymManagement.Models.DTOs
     public class AulaCreateDto
     {
         [Required] public string Nome { get; set; } = string.Empty;
+        [Required] public int Categoria { get; set; } = 99;
         [Required] public int DiaSemana { get; set; }
         [Required] public string Hora { get; set; } = "09:00";
         [Range(15, 180)] public int DuracaoMinutos { get; set; } = 60;
-        [Required] public int PlanoTreinoId { get; set; }
         [Required] public int InstrutorId { get; set; }
         [Required] public int SalaId { get; set; }
     }
@@ -65,6 +65,21 @@ namespace GymManagement.Models.DTOs
         public string Descricao { get; set; } = string.Empty;
         public int DuracaoMinutos { get; set; }
         public string Nivel { get; set; } = string.Empty;
+        public string Objetivo { get; set; } = string.Empty;
+        public bool Ativo { get; set; }
+        public int TotalAtribuicoes { get; set; }
+    }
+
+    public class PlanoTreinoAlunoDto
+    {
+        public int Id { get; set; }
+        public string PlanoTreino { get; set; } = string.Empty;
+        public string Utilizador { get; set; } = string.Empty;
+        public string? Instrutor { get; set; }
+        public DateTime DataInicio { get; set; }
+        public DateTime? DataFim { get; set; }
+        public string? Observacoes { get; set; }
+        public bool Ativo { get; set; }
     }
 
     // ───── Frequencia ─────

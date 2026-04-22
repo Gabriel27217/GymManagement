@@ -49,6 +49,7 @@
                                     {
                                         <div class="aula-card @(aula.Lotada ? "lotada" : "")">
                                             <div class="aula-nome">@aula.Nome</div>
+                                            <div class="aula-categoria">@aula.Categoria</div>
                                             <div class="aula-info">@aula.Hora–@aula.HoraFim · @aula.Sala</div>
                                             <div class="aula-info">@aula.Instrutor</div>
                                             <div class="aula-vagas">
@@ -98,6 +99,7 @@
     }
     .aula-card.lotada { border-left-color: #ff4444; opacity: .85; }
     .aula-nome { font-weight: 600; color: #e8ff00; line-height: 1.2; }
+    .aula-categoria { font-size: .65rem; color: #888; text-transform: uppercase; letter-spacing: .5px; }
     .aula-info { color: #aaa; font-size: .7rem; line-height: 1.2; }
     .aula-vagas { margin-top: 2px; }
     .aula-actions { margin-top: 2px; }

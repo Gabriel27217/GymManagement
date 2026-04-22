@@ -2,6 +2,8 @@ using GymManagement.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+
 // ── Razor Pages
 builder.Services.AddRazorPages();
 builder.Services.AddHttpContextAccessor();

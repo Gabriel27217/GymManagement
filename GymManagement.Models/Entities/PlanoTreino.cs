@@ -3,7 +3,9 @@ using System.ComponentModel.DataAnnotations;
 namespace GymManagement.Models.Entities
 {
     /// <summary>
-    /// Plano de treino que agrupa um tipo de aulas.
+    /// Plano de treino genérico disponível no ginásio.
+    /// Pode ser atribuído a alunos específicos via PlanoTreinoAluno.
+    /// Completamente independente das aulas de grupo.
     /// </summary>
     public class PlanoTreino
     {
@@ -25,6 +27,9 @@ namespace GymManagement.Models.Entities
         [Display(Name = "Duração (minutos)")]
         public int DuracaoMinutos { get; set; }
 
+        [Display(Name = "Objetivo")]
+        public ObjetivoTreino Objetivo { get; set; } = ObjetivoTreino.Geral;
+
         [Display(Name = "Nível de Dificuldade")]
         public NivelDificuldade Nivel { get; set; } = NivelDificuldade.Iniciante;
 
@@ -34,19 +39,56 @@ namespace GymManagement.Models.Entities
         [Display(Name = "Ativo")]
         public bool Ativo { get; set; } = true;
 
-        // Um plano tem várias aulas (muitos-para-um do lado da Aula)
-        public virtual ICollection<Aula> Aulas { get; set; } = new List<Aula>();
+        // Atribuições a alunos específicos
+        public virtual ICollection<PlanoTreinoAluno> Atribuicoes { get; set; } = new List<PlanoTreinoAluno>();
+    }
+
+    /// <summary>
+    /// Atribuição de um plano genérico a um aluno específico,
+    /// podendo ter personalizações (observações, instrutor responsável).
+    /// </summary>
+    public class PlanoTreinoAluno
+    {
+        [Key]
+        public int Id { get; set; }
+
+        public int PlanoTreinoId { get; set; }
+        public virtual PlanoTreino? PlanoTreino { get; set; }
+
+        public int UtilizadorId { get; set; }
+        public virtual Utilizador? Utilizador { get; set; }
+
+        public int? InstrutorId { get; set; }
+        public virtual Instrutor? Instrutor { get; set; }
+
+        [Display(Name = "Data de Início")]
+        public DateTime DataInicio { get; set; } = DateTime.Now;
+
+        [Display(Name = "Data de Fim")]
+        public DateTime? DataFim { get; set; }
+
+        [StringLength(500)]
+        [Display(Name = "Observações / Personalizações")]
+        public string? Observacoes { get; set; }
+
+        [Display(Name = "Ativo")]
+        public bool Ativo { get; set; } = true;
     }
 
     public enum NivelDificuldade
     {
-        [Display(Name = "Iniciante")]
-        Iniciante = 0,
+        [Display(Name = "Iniciante")]  Iniciante  = 0,
+        [Display(Name = "Intermédio")] Intermedio = 1,
+        [Display(Name = "Avançado")]   Avancado   = 2
+    }
 
-        [Display(Name = "Intermédio")]
-        Intermedio = 1,
-
-        [Display(Name = "Avançado")]
-        Avancado = 2
+    public enum ObjetivoTreino
+    {
+        [Display(Name = "Geral")]              Geral          = 0,
+        [Display(Name = "Perda de Peso")]      PerdaPeso      = 1,
+        [Display(Name = "Ganho de Massa")]     GanhoMassa     = 2,
+        [Display(Name = "Resistência")]        Resistencia    = 3,
+        [Display(Name = "Reabilitação")]       Reabilitacao   = 4,
+        [Display(Name = "Manutenção")]         Manutencao     = 5
     }
 }

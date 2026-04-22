@@ -75,7 +75,11 @@ namespace GymManagement.API.Controllers
 
             return CreatedAtAction(nameof(Login), new { mensagem = "Conta criada com sucesso." });
         }
-
+        /// <summary>
+        ///         frdrtdfvrtfv
+        /// </summary>
+        /// <param name="utilizador"></param>
+        /// <returns></returns>
         // ── Helper: gerar token JWT ──────────────────────────────
         private string GerarToken(Utilizador utilizador)
         {

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GymManagement.Data.Migrations
 {
     [DbContext(typeof(GymDbContext))]
-    [Migration("20260418220500_AulaHorarioSemanal")]
-    partial class AulaHorarioSemanal
+    [Migration("20260421205642_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -36,6 +36,9 @@ namespace GymManagement.Data.Migrations
                     b.Property<bool>("Ativa")
                         .HasColumnType("bit");
 
+                    b.Property<int>("Categoria")
+                        .HasColumnType("int");
+
                     b.Property<int>("DiaSemana")
                         .HasColumnType("int");
 
@@ -53,17 +56,12 @@ namespace GymManagement.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("PlanoTreinoId")
-                        .HasColumnType("int");
-
                     b.Property<int>("SalaId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("InstrutorId");
-
-                    b.HasIndex("PlanoTreinoId");
 
                     b.HasIndex("SalaId");
 
@@ -74,48 +72,48 @@ namespace GymManagement.Data.Migrations
                         {
                             Id = 1,
                             Ativa = true,
+                            Categoria = 4,
                             DiaSemana = 1,
                             DuracaoMinutos = 60,
                             Hora = new TimeOnly(18, 0, 0),
                             InstrutorId = 1,
                             Nome = "Musculação Avançada",
-                            PlanoTreinoId = 1,
                             SalaId = 1
                         },
                         new
                         {
                             Id = 2,
                             Ativa = true,
+                            Categoria = 1,
                             DiaSemana = 2,
                             DuracaoMinutos = 45,
                             Hora = new TimeOnly(19, 0, 0),
                             InstrutorId = 2,
                             Nome = "Yoga Relaxante",
-                            PlanoTreinoId = 2,
                             SalaId = 2
                         },
                         new
                         {
                             Id = 3,
                             Ativa = true,
+                            Categoria = 3,
                             DiaSemana = 3,
                             DuracaoMinutos = 50,
                             Hora = new TimeOnly(20, 0, 0),
                             InstrutorId = 3,
                             Nome = "Spinning Intensivo",
-                            PlanoTreinoId = 3,
                             SalaId = 3
                         },
                         new
                         {
                             Id = 4,
                             Ativa = true,
+                            Categoria = 2,
                             DiaSemana = 4,
                             DuracaoMinutos = 45,
                             Hora = new TimeOnly(9, 0, 0),
                             InstrutorId = 2,
-                            Nome = "Yoga Manhã",
-                            PlanoTreinoId = 2,
+                            Nome = "Pilates Manhã",
                             SalaId = 2
                         });
                 });
@@ -221,7 +219,7 @@ namespace GymManagement.Data.Migrations
                             Id = 2,
                             Ativo = true,
                             Email = "ana@gym.pt",
-                            Especialidade = "Yoga",
+                            Especialidade = "Yoga / Pilates",
                             Nome = "Ana Ferreira",
                             Telefone = "961000002"
                         },
@@ -230,7 +228,7 @@ namespace GymManagement.Data.Migrations
                             Id = 3,
                             Ativo = true,
                             Email = "rui@gym.pt",
-                            Especialidade = "Spinning",
+                            Especialidade = "Spinning / Cardio",
                             Nome = "Rui Costa",
                             Telefone = "961000003"
                         });
@@ -266,6 +264,9 @@ namespace GymManagement.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<int>("Objetivo")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("PlanosTreino");
@@ -276,31 +277,75 @@ namespace GymManagement.Data.Migrations
                             Id = 1,
                             Ativo = true,
                             DataCriacao = new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Descricao = "Treino de força e hipertrofia muscular",
+                            Descricao = "Plano para quem está a começar. Foco em técnica e adaptação.",
                             DuracaoMinutos = 60,
-                            Nivel = 1,
-                            Nome = "Musculação"
+                            Nivel = 0,
+                            Nome = "Iniciação à Musculação",
+                            Objetivo = 0
                         },
                         new
                         {
                             Id = 2,
                             Ativo = true,
                             DataCriacao = new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Descricao = "Relaxamento, flexibilidade e equilíbrio",
-                            DuracaoMinutos = 45,
-                            Nivel = 0,
-                            Nome = "Yoga"
+                            Descricao = "Combinação de cardio e musculação para queima calórica.",
+                            DuracaoMinutos = 75,
+                            Nivel = 1,
+                            Nome = "Perda de Peso",
+                            Objetivo = 1
                         },
                         new
                         {
                             Id = 3,
                             Ativo = true,
                             DataCriacao = new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Descricao = "Cardio intensivo em bicicleta estática",
-                            DuracaoMinutos = 50,
+                            Descricao = "Treino de força e hipertrofia muscular progressiva.",
+                            DuracaoMinutos = 90,
                             Nivel = 2,
-                            Nome = "Spinning"
+                            Nome = "Ganho de Massa",
+                            Objetivo = 2
                         });
+                });
+
+            modelBuilder.Entity("GymManagement.Models.Entities.PlanoTreinoAluno", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("DataFim")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DataInicio")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("InstrutorId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Observacoes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("PlanoTreinoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UtilizadorId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InstrutorId");
+
+                    b.HasIndex("PlanoTreinoId");
+
+                    b.HasIndex("UtilizadorId");
+
+                    b.ToTable("PlanosTreinoAluno");
                 });
 
             modelBuilder.Entity("GymManagement.Models.Entities.Sala", b =>
@@ -399,6 +444,29 @@ namespace GymManagement.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Utilizadores");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Ativo = true,
+                            DataRegisto = new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "admin@gym.pt",
+                            Nome = "Administrador",
+                            PasswordHash = "$2a$11$1DV1gt4DimgCp5WP48l.EuPYufyZxhuj2uUD6XJcv5tR0ak5cOhIa",
+                            Role = 0
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Ativo = true,
+                            DataRegisto = new DateTime(2024, 9, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "cliente@gym.pt",
+                            Nome = "João Cliente",
+                            PasswordHash = "$2a$11$1DV1gt4DimgCp5WP48l.EuPYufyZxhuj2uUD6XJcv5tR0ak5cOhIa",
+                            Role = 1,
+                            Telefone = "912345678"
+                        });
                 });
 
             modelBuilder.Entity("GymManagement.Models.Entities.Aula", b =>
@@ -409,12 +477,6 @@ namespace GymManagement.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("GymManagement.Models.Entities.PlanoTreino", "PlanoTreino")
-                        .WithMany("Aulas")
-                        .HasForeignKey("PlanoTreinoId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("GymManagement.Models.Entities.Sala", "Sala")
                         .WithMany("Aulas")
                         .HasForeignKey("SalaId")
@@ -422,8 +484,6 @@ namespace GymManagement.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Instrutor");
-
-                    b.Navigation("PlanoTreino");
 
                     b.Navigation("Sala");
                 });
@@ -458,6 +518,32 @@ namespace GymManagement.Data.Migrations
                     b.Navigation("Utilizador");
                 });
 
+            modelBuilder.Entity("GymManagement.Models.Entities.PlanoTreinoAluno", b =>
+                {
+                    b.HasOne("GymManagement.Models.Entities.Instrutor", "Instrutor")
+                        .WithMany()
+                        .HasForeignKey("InstrutorId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("GymManagement.Models.Entities.PlanoTreino", "PlanoTreino")
+                        .WithMany("Atribuicoes")
+                        .HasForeignKey("PlanoTreinoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GymManagement.Models.Entities.Utilizador", "Utilizador")
+                        .WithMany()
+                        .HasForeignKey("UtilizadorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Instrutor");
+
+                    b.Navigation("PlanoTreino");
+
+                    b.Navigation("Utilizador");
+                });
+
             modelBuilder.Entity("GymManagement.Models.Entities.Aula", b =>
                 {
                     b.Navigation("Inscricoes");
@@ -470,7 +556,7 @@ namespace GymManagement.Data.Migrations
 
             modelBuilder.Entity("GymManagement.Models.Entities.PlanoTreino", b =>
                 {
-                    b.Navigation("Aulas");
+                    b.Navigation("Atribuicoes");
                 });
 
             modelBuilder.Entity("GymManagement.Models.Entities.Sala", b =>
