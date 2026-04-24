@@ -1,16 +1,16 @@
-@page
-@model GymManagement.Web.Pages.Aulas.CreateModel
+@page "{id:int}"
+@model GymManagement.Web.Pages.Aulas.EditModel
 @{
-    ViewData["Title"] = "Criar Nova Aula";
+    ViewData["Title"] = "Editar Aula";
 }
 
 <!-- Page Header -->
 <div class="page-header">
     <div class="container">
         <h1>
-            <i class="bi bi-plus-circle"></i> Criar Nova Aula
+            <i class="bi bi-pencil-square"></i> Editar Aula
         </h1>
-        <p class="text-muted mb-0">Agende uma nova aula de grupo no ginásio</p>
+        <p class="text-muted mb-0">Atualize os detalhes da aula</p>
     </div>
 </div>
 
@@ -23,7 +23,7 @@
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     <div class="d-flex align-items-center mb-2">
                         <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
-                        <strong>Não foi possível criar a aula</strong>
+                        <strong>Não foi possível atualizar a aula</strong>
                     </div>
                     <ul class="mb-0 ms-5">
                         @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
@@ -38,26 +38,28 @@
             <!-- Formulário -->
             <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white">
-                    <i class="bi bi-calendar-plus me-2"></i>Detalhes da Aula
+                    <i class="bi bi-calendar-check me-2"></i>Detalhes da Aula
                 </div>
                 <div class="card-body">
-                    <form method="post" id="formCriarAula">
+                    <form method="post" id="formEditarAula">
+                        <input type="hidden" asp-for="AulaId" />
+
                         <div class="row g-3">
                             <!-- Nome da Aula -->
                             <div class="col-md-12">
-                                <label asp-for="Nome" class="form-label required">
+                                <label asp-for="Aula.Nome" class="form-label required">
                                     <i class="bi bi-card-heading me-1"></i>Nome da Aula
                                 </label>
-                                <input asp-for="Nome" class="form-control" placeholder="Ex: Yoga Relaxante" />
-                                <span asp-validation-for="Nome" class="text-danger small"></span>
+                                <input asp-for="Aula.Nome" class="form-control" placeholder="Ex: Yoga Relaxante" />
+                                <span asp-validation-for="Aula.Nome" class="text-danger small"></span>
                             </div>
 
                             <!-- Categoria -->
                             <div class="col-md-6">
-                                <label asp-for="Categoria" class="form-label required">
+                                <label asp-for="Aula.Categoria" class="form-label required">
                                     <i class="bi bi-tag me-1"></i>Categoria
                                 </label>
-                                <select asp-for="Categoria" class="form-select">
+                                <select asp-for="Aula.Categoria" class="form-select">
                                     <option value="1">Yoga</option>
                                     <option value="2">Pilates</option>
                                     <option value="3">Spinning</option>
@@ -68,15 +70,15 @@
                                     <option value="8">Crossfit</option>
                                     <option value="99">Outro</option>
                                 </select>
-                                <span asp-validation-for="Categoria" class="text-danger small"></span>
+                                <span asp-validation-for="Aula.Categoria" class="text-danger small"></span>
                             </div>
 
                             <!-- Dia da Semana -->
                             <div class="col-md-6">
-                                <label asp-for="DiaSemana" class="form-label required">
+                                <label asp-for="Aula.DiaSemana" class="form-label required">
                                     <i class="bi bi-calendar-week me-1"></i>Dia da Semana
                                 </label>
-                                <select asp-for="DiaSemana" class="form-select">
+                                <select asp-for="Aula.DiaSemana" class="form-select">
                                     <option value="1">Segunda-feira</option>
                                     <option value="2">Terça-feira</option>
                                     <option value="3">Quarta-feira</option>
@@ -85,16 +87,16 @@
                                     <option value="6">Sábado</option>
                                     <option value="7">Domingo</option>
                                 </select>
-                                <span asp-validation-for="DiaSemana" class="text-danger small"></span>
+                                <span asp-validation-for="Aula.DiaSemana" class="text-danger small"></span>
                             </div>
 
                             <!-- Hora -->
                             <div class="col-md-6">
-                                <label asp-for="Hora" class="form-label required">
+                                <label asp-for="Aula.Hora" class="form-label required">
                                     <i class="bi bi-clock me-1"></i>Hora de Início
                                 </label>
-                                <input asp-for="Hora" type="time" class="form-control" />
-                                <span asp-validation-for="Hora" class="text-danger small"></span>
+                                <input asp-for="Aula.Hora" type="time" class="form-control" />
+                                <span asp-validation-for="Aula.Hora" class="text-danger small"></span>
                                 <small class="form-text text-muted">
                                     <i class="bi bi-info-circle"></i> Horário entre 06:00 e 23:00
                                 </small>
@@ -102,15 +104,15 @@
 
                             <!-- Duração -->
                             <div class="col-md-6">
-                                <label asp-for="DuracaoMinutos" class="form-label required">
+                                <label asp-for="Aula.DuracaoMinutos" class="form-label required">
                                     <i class="bi bi-hourglass-split me-1"></i>Duração
                                 </label>
                                 <div class="input-group">
-                                    <input asp-for="DuracaoMinutos" type="number" class="form-control" 
+                                    <input asp-for="Aula.DuracaoMinutos" type="number" class="form-control" 
                                            min="15" max="180" step="15" />
                                     <span class="input-group-text">minutos</span>
                                 </div>
-                                <span asp-validation-for="DuracaoMinutos" class="text-danger small"></span>
+                                <span asp-validation-for="Aula.DuracaoMinutos" class="text-danger small"></span>
                                 <small class="form-text text-muted">
                                     <i class="bi bi-info-circle"></i> Entre 15 e 180 minutos
                                 </small>
@@ -118,10 +120,10 @@
 
                             <!-- Instrutor -->
                             <div class="col-md-6">
-                                <label asp-for="InstrutorId" class="form-label required">
+                                <label asp-for="Aula.InstrutorId" class="form-label required">
                                     <i class="bi bi-person-badge me-1"></i>Instrutor
                                 </label>
-                                <select asp-for="InstrutorId" class="form-select">
+                                <select asp-for="Aula.InstrutorId" class="form-select">
                                     <option value="">-- Selecione --</option>
                                     @foreach (var instrutor in Model.Instrutores)
                                     {
@@ -134,15 +136,15 @@
                                         </option>
                                     }
                                 </select>
-                                <span asp-validation-for="InstrutorId" class="text-danger small"></span>
+                                <span asp-validation-for="Aula.InstrutorId" class="text-danger small"></span>
                             </div>
 
                             <!-- Sala -->
                             <div class="col-md-6">
-                                <label asp-for="SalaId" class="form-label required">
+                                <label asp-for="Aula.SalaId" class="form-label required">
                                     <i class="bi bi-door-open me-1"></i>Sala
                                 </label>
-                                <select asp-for="SalaId" class="form-select">
+                                <select asp-for="Aula.SalaId" class="form-select">
                                     <option value="">-- Selecione --</option>
                                     @foreach (var sala in Model.Salas)
                                     {
@@ -151,7 +153,7 @@
                                         </option>
                                     }
                                 </select>
-                                <span asp-validation-for="SalaId" class="text-danger small"></span>
+                                <span asp-validation-for="Aula.SalaId" class="text-danger small"></span>
                             </div>
 
                             <!-- Preview da Aula -->
@@ -171,7 +173,7 @@
                             <button type="submit" class="btn btn-primary" id="btnSubmit">
                                 <span class="spinner-border spinner-border-sm me-2 d-none" role="status" id="spinner"></span>
                                 <i class="bi bi-check-lg me-2" id="iconSubmit"></i>
-                                <span id="textSubmit">Criar Aula</span>
+                                <span id="textSubmit">Atualizar Aula</span>
                             </button>
                         </div>
                     </form>
@@ -198,22 +200,18 @@
 
     <script>
         // Preview dinâmico da aula
-        const form = document.getElementById('formCriarAula');
+        const form = document.getElementById('formEditarAula');
         const inputs = form.querySelectorAll('input, select');
         const preview = document.getElementById('previewAula');
         const previewTexto = document.getElementById('previewTexto');
 
         const diasSemana = ['', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
-        const categorias = {
-            1: 'Yoga', 2: 'Pilates', 3: 'Spinning', 4: 'Musculação',
-            5: 'Zumba', 6: 'Boxe', 7: 'Natação', 8: 'Crossfit', 99: 'Outro'
-        };
 
         function atualizarPreview() {
-            const nome = document.getElementById('Nome').value;
-            const dia = parseInt(document.getElementById('DiaSemana').value);
-            const hora = document.getElementById('Hora').value;
-            const duracao = parseInt(document.getElementById('DuracaoMinutos').value);
+            const nome = document.getElementById('Aula_Nome').value;
+            const dia = parseInt(document.getElementById('Aula_DiaSemana').value);
+            const hora = document.getElementById('Aula_Hora').value;
+            const duracao = parseInt(document.getElementById('Aula_DuracaoMinutos').value);
 
             if (nome && dia && hora && duracao) {
                 const horaFim = calcularHoraFim(hora, duracao);
@@ -250,13 +248,13 @@
             btnSubmit.disabled = true;
             spinner.classList.remove('d-none');
             icon.classList.add('d-none');
-            text.textContent = 'A criar...';
+            text.textContent = 'A atualizar...';
         });
 
         // Validação de horário no lado do cliente
         form.addEventListener('submit', function(e) {
-            const hora = document.getElementById('Hora').value;
-            const duracao = parseInt(document.getElementById('DuracaoMinutos').value);
+            const hora = document.getElementById('Aula_Hora').value;
+            const duracao = parseInt(document.getElementById('Aula_DuracaoMinutos').value);
 
             if (hora && duracao) {
                 const [h, m] = hora.split(':').map(Number);
@@ -290,7 +288,10 @@
             btnSubmit.disabled = false;
             spinner.classList.add('d-none');
             icon.classList.remove('d-none');
-            text.textContent = 'Criar Aula';
+            text.textContent = 'Atualizar Aula';
         }
+
+        // Inicializar preview
+        atualizarPreview();
     </script>
 }

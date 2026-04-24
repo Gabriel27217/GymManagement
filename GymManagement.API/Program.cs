@@ -2,6 +2,7 @@ using GymManagement.API.Hubs;
 using GymManagement.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -10,7 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // ── Base de dados ───────────────────────────────────────────────
 builder.Services.AddDbContext<GymDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+           .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning)));
 
 // ── JWT ─────────────────────────────────────────────────────────
 var jwtKey = builder.Configuration["JwtSettings:SecretKey"]!;
@@ -83,8 +85,17 @@ var app = builder.Build();
 // ── Aplicar migrações e seed automaticamente ─────────────────────
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<GymDbContext>();
-    db.Database.Migrate();
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<GymDbContext>();
+        db.Database.Migrate();
+        Console.WriteLine("✓ Base de dados migrada com sucesso!");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"✗ Erro ao migrar a base de dados: {ex.Message}");
+        throw;
+    }
 }
 
 if (app.Environment.IsDevelopment())
