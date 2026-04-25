@@ -1,7 +1,9 @@
-using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
+
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
 namespace GymManagement.Data.Migrations
 {
@@ -17,10 +19,11 @@ namespace GymManagement.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Nome = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Especialidade = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Telefone = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Especialidade = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Telefone = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Ativo = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -33,13 +36,13 @@ namespace GymManagement.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Descricao = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Nome = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Descricao = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     DuracaoMinutos = table.Column<int>(type: "int", nullable: false),
-                    Nivel = table.Column<int>(type: "int", nullable: false),
                     Objetivo = table.Column<int>(type: "int", nullable: false),
+                    Nivel = table.Column<int>(type: "int", nullable: false),
                     DataCriacao = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Ativo = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
+                    Ativo = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -52,9 +55,10 @@ namespace GymManagement.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Nome = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     CapacidadeMaxima = table.Column<int>(type: "int", nullable: false),
-                    Descricao = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Descricao = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
+                    Ativa = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -67,13 +71,13 @@ namespace GymManagement.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Telefone = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Nome = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     Role = table.Column<int>(type: "int", nullable: false),
-                    Ativo = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
-                    DataRegisto = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()")
+                    DataRegisto = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Ativo = table.Column<bool>(type: "bit", nullable: false),
+                    Telefone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -86,13 +90,14 @@ namespace GymManagement.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Nome = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Categoria = table.Column<int>(type: "int", nullable: false),
                     DiaSemana = table.Column<int>(type: "int", nullable: false),
                     Hora = table.Column<TimeOnly>(type: "time", nullable: false),
                     DuracaoMinutos = table.Column<int>(type: "int", nullable: false),
                     InstrutorId = table.Column<int>(type: "int", nullable: false),
-                    SalaId = table.Column<int>(type: "int", nullable: false)
+                    SalaId = table.Column<int>(type: "int", nullable: false),
+                    Ativa = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -117,41 +122,16 @@ namespace GymManagement.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UtilizadorId = table.Column<int>(type: "int", nullable: false),
-                    DataEntrada = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()")
+                    Entrada = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Saida = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Observacoes = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    UtilizadorId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Frequencias", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Frequencias_Utilizadores_UtilizadorId",
-                        column: x => x.UtilizadorId,
-                        principalTable: "Utilizadores",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "InscricaoAula",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UtilizadorId = table.Column<int>(type: "int", nullable: false),
-                    AulaId = table.Column<int>(type: "int", nullable: false),
-                    DataInscricao = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_InscricaoAula", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_InscricaoAula_Aulas_AulaId",
-                        column: x => x.AulaId,
-                        principalTable: "Aulas",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_InscricaoAula_Utilizadores_UtilizadorId",
                         column: x => x.UtilizadorId,
                         principalTable: "Utilizadores",
                         principalColumn: "Id",
@@ -169,8 +149,8 @@ namespace GymManagement.Data.Migrations
                     InstrutorId = table.Column<int>(type: "int", nullable: true),
                     DataInicio = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DataFim = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Observacoes = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Ativo = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
+                    Observacoes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Ativo = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -195,6 +175,83 @@ namespace GymManagement.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Inscricoes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    DataInscricao = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UtilizadorId = table.Column<int>(type: "int", nullable: false),
+                    AulaId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Inscricoes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Inscricoes_Aulas_AulaId",
+                        column: x => x.AulaId,
+                        principalTable: "Aulas",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Inscricoes_Utilizadores_UtilizadorId",
+                        column: x => x.UtilizadorId,
+                        principalTable: "Utilizadores",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "Instrutores",
+                columns: new[] { "Id", "Ativo", "Email", "Especialidade", "Nome", "Telefone" },
+                values: new object[,]
+                {
+                    { 1, true, "carlos@gym.pt", "Musculação", "Carlos Silva", "961000001" },
+                    { 2, true, "ana@gym.pt", "Yoga / Pilates", "Ana Ferreira", "961000002" },
+                    { 3, true, "rui@gym.pt", "Spinning / Cardio", "Rui Costa", "961000003" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "PlanosTreino",
+                columns: new[] { "Id", "Ativo", "DataCriacao", "Descricao", "DuracaoMinutos", "Nivel", "Nome", "Objetivo" },
+                values: new object[,]
+                {
+                    { 1, true, new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Plano para quem está a começar. Foco em técnica e adaptação.", 60, 0, "Iniciação à Musculação", 0 },
+                    { 2, true, new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Combinação de cardio e musculação para queima calórica.", 75, 1, "Perda de Peso", 1 },
+                    { 3, true, new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Treino de força e hipertrofia muscular progressiva.", 90, 2, "Ganho de Massa", 2 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Salas",
+                columns: new[] { "Id", "Ativa", "CapacidadeMaxima", "Descricao", "Nome" },
+                values: new object[,]
+                {
+                    { 1, true, 20, "Sala de musculação e pesos", "Sala A" },
+                    { 2, true, 15, "Sala de yoga e pilates", "Sala B" },
+                    { 3, true, 25, "Sala de spinning e cardio", "Sala C" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Utilizadores",
+                columns: new[] { "Id", "Ativo", "DataRegisto", "Email", "Nome", "PasswordHash", "Role", "Telefone" },
+                values: new object[,]
+                {
+                    { 1, true, new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin@gym.pt", "Administrador", "$2a$11$1DV1gt4DimgCp5WP48l.EuPYufyZxhuj2uUD6XJcv5tR0ak5cOhIa", 0, null },
+                    { 2, true, new DateTime(2024, 9, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), "cliente@gym.pt", "João Cliente", "$2a$11$1DV1gt4DimgCp5WP48l.EuPYufyZxhuj2uUD6XJcv5tR0ak5cOhIa", 1, "912345678" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Aulas",
+                columns: new[] { "Id", "Ativa", "Categoria", "DiaSemana", "DuracaoMinutos", "Hora", "InstrutorId", "Nome", "SalaId" },
+                values: new object[,]
+                {
+                    { 1, true, 4, 1, 60, new TimeOnly(18, 0, 0), 1, "Musculação Avançada", 1 },
+                    { 2, true, 1, 2, 45, new TimeOnly(19, 0, 0), 2, "Yoga Relaxante", 2 },
+                    { 3, true, 3, 3, 50, new TimeOnly(20, 0, 0), 3, "Spinning Intensivo", 3 },
+                    { 4, true, 2, 4, 45, new TimeOnly(9, 0, 0), 2, "Pilates Manhã", 2 }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Aulas_InstrutorId",
                 table: "Aulas",
@@ -211,13 +268,13 @@ namespace GymManagement.Data.Migrations
                 column: "UtilizadorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_InscricaoAula_AulaId",
-                table: "InscricaoAula",
+                name: "IX_Inscricoes_AulaId",
+                table: "Inscricoes",
                 column: "AulaId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_InscricaoAula_UtilizadorId_AulaId",
-                table: "InscricaoAula",
+                name: "IX_Inscricoes_UtilizadorId_AulaId",
+                table: "Inscricoes",
                 columns: new[] { "UtilizadorId", "AulaId" },
                 unique: true);
 
@@ -241,57 +298,6 @@ namespace GymManagement.Data.Migrations
                 table: "Utilizadores",
                 column: "Email",
                 unique: true);
-
-            // Seed data
-            migrationBuilder.InsertData(
-                table: "Utilizadores",
-                columns: new[] { "Id", "Nome", "Email", "PasswordHash", "Role", "Telefone", "Ativo", "DataRegisto" },
-                values: new object[,]
-                {
-                    { 1, "Administrador", "admin@gym.pt", "$2a$11$1DV1gt4DimgCp5WP48l.EuPYufyZxhuj2uUD6XJcv5tR0ak5cOhIa", 0, null, true, new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 2, "João Cliente", "cliente@gym.pt", "$2a$11$1DV1gt4DimgCp5WP48l.EuPYufyZxhuj2uUD6XJcv5tR0ak5cOhIa", 1, "912345678", true, new DateTime(2024, 9, 15, 0, 0, 0, 0, DateTimeKind.Unspecified) }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Instrutores",
-                columns: new[] { "Id", "Nome", "Email", "Especialidade", "Telefone" },
-                values: new object[,]
-                {
-                    { 1, "Carlos Silva", "carlos@gym.pt", "Musculação", "961000001" },
-                    { 2, "Ana Ferreira", "ana@gym.pt", "Yoga / Pilates", "961000002" },
-                    { 3, "Rui Costa", "rui@gym.pt", "Spinning / Cardio", "961000003" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Salas",
-                columns: new[] { "Id", "Nome", "CapacidadeMaxima", "Descricao" },
-                values: new object[,]
-                {
-                    { 1, "Sala A", 20, "Sala de musculação e pesos" },
-                    { 2, "Sala B", 15, "Sala de yoga e pilates" },
-                    { 3, "Sala C", 25, "Sala de spinning e cardio" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "PlanosTreino",
-                columns: new[] { "Id", "Nome", "Descricao", "DuracaoMinutos", "Nivel", "Objetivo", "DataCriacao", "Ativo" },
-                values: new object[,]
-                {
-                    { 1, "Iniciação à Musculação", "Plano para quem está a começar. Foco em técnica e adaptação.", 60, 0, 0, new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true },
-                    { 2, "Perda de Peso", "Combinação de cardio e musculação para queima calórica.", 75, 1, 1, new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true },
-                    { 3, "Ganho de Massa", "Treino de força e hipertrofia muscular progressiva.", 90, 2, 2, new DateTime(2024, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Aulas",
-                columns: new[] { "Id", "Nome", "Categoria", "DiaSemana", "Hora", "DuracaoMinutos", "InstrutorId", "SalaId" },
-                values: new object[,]
-                {
-                    { 1, "Musculação Avançada", 4, 1, new TimeOnly(18, 0, 0), 60, 1, 1 },
-                    { 2, "Yoga Relaxante", 1, 2, new TimeOnly(19, 0, 0), 45, 2, 2 },
-                    { 3, "Spinning Intensivo", 3, 3, new TimeOnly(20, 0, 0), 50, 3, 3 },
-                    { 4, "Pilates Manhã", 2, 4, new TimeOnly(9, 0, 0), 45, 2, 2 }
-                });
         }
 
         /// <inheritdoc />
@@ -301,7 +307,7 @@ namespace GymManagement.Data.Migrations
                 name: "Frequencias");
 
             migrationBuilder.DropTable(
-                name: "InscricaoAula");
+                name: "Inscricoes");
 
             migrationBuilder.DropTable(
                 name: "PlanosTreinoAluno");
@@ -313,13 +319,13 @@ namespace GymManagement.Data.Migrations
                 name: "PlanosTreino");
 
             migrationBuilder.DropTable(
+                name: "Utilizadores");
+
+            migrationBuilder.DropTable(
                 name: "Instrutores");
 
             migrationBuilder.DropTable(
                 name: "Salas");
-
-            migrationBuilder.DropTable(
-                name: "Utilizadores");
         }
     }
 }

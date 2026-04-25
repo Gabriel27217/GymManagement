@@ -89,11 +89,11 @@ using (var scope = app.Services.CreateScope())
     {
         var db = scope.ServiceProvider.GetRequiredService<GymDbContext>();
         db.Database.Migrate();
-        Console.WriteLine("✓ Base de dados migrada com sucesso!");
+        Console.WriteLine(" Base de dados migrada com sucesso!");
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"✗ Erro ao migrar a base de dados: {ex.Message}");
+        Console.WriteLine($" Erro ao migrar a base de dados: {ex.Message}");
         throw;
     }
 }
