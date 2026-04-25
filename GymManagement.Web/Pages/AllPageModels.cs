@@ -186,15 +186,39 @@ namespace GymManagement.Web.Pages.Frequencias
         public int UtilizadorId { get; set; }
     }
 
+    public class ClienteSimples
+    {
+        public int Id { get; set; }
+        public string Nome { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+    }
+
     public class IndexModel : PageModel
     {
         private readonly IHttpClientFactory _f; private readonly IConfiguration _c;
         public IndexModel(IHttpClientFactory f, IConfiguration c) { _f = f; _c = c; }
         public List<FrequenciaListDto> Frequencias { get; set; } = new();
+        public List<ClienteSimples> Clientes { get; set; } = new();
+        public bool IsAdmin { get; set; }
+
         public async Task OnGetAsync()
         {
-            try { var h = Http(); var j = await h.GetStringAsync("api/Frequencias"); Frequencias = JsonSerializer.Deserialize<List<FrequenciaListDto>>(j, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new(); } catch { }
+            IsAdmin = HttpContext.Session.GetString("Role") == "Admin";
+            try
+            {
+                var h = Http();
+                var j = await h.GetStringAsync("api/Frequencias");
+                Frequencias = JsonSerializer.Deserialize<List<FrequenciaListDto>>(j, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new();
+
+                if (IsAdmin)
+                {
+                    var ju = await h.GetStringAsync("api/Utilizadores");
+                    Clientes = JsonSerializer.Deserialize<List<ClienteSimples>>(ju, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new();
+                }
+            }
+            catch { }
         }
+
         private HttpClient Http() { var h = _f.CreateClient(); h.BaseAddress = new Uri(_c["ApiSettings:BaseUrl"]!); h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", HttpContext.Session.GetString("JWT")); return h; }
     }
 
@@ -202,13 +226,31 @@ namespace GymManagement.Web.Pages.Frequencias
     {
         private readonly IHttpClientFactory _f; private readonly IConfiguration _c;
         public EntradaModel(IHttpClientFactory f, IConfiguration c) { _f = f; _c = c; }
-        public async Task<IActionResult> OnGetAsync()
+
+        // utilizadorId = 0 → entrada do próprio utilizador autenticado
+        // utilizadorId > 0 → admin regista entrada de um cliente específico
+        public async Task<IActionResult> OnGetAsync(int utilizadorId = 0)
         {
-            var h = _f.CreateClient(); h.BaseAddress = new Uri(_c["ApiSettings:BaseUrl"]!);
+            var h = _f.CreateClient();
+            h.BaseAddress = new Uri(_c["ApiSettings:BaseUrl"]!);
             h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", HttpContext.Session.GetString("JWT"));
-            var resp = await h.PostAsync("api/Frequencias/Entrada", new StringContent("null", System.Text.Encoding.UTF8, "application/json"));
-            var body = JsonSerializer.Deserialize<Dictionary<string, string>>(await resp.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            TempData[resp.IsSuccessStatusCode ? "Sucesso" : "Erro"] = body?.GetValueOrDefault("mensagem") ?? "";
+
+            HttpResponseMessage resp;
+            if (utilizadorId > 0)
+                resp = await h.PostAsync($"api/Frequencias/Entrada/{utilizadorId}", new StringContent("null", System.Text.Encoding.UTF8, "application/json"));
+            else
+                resp = await h.PostAsync("api/Frequencias/Entrada", new StringContent("null", System.Text.Encoding.UTF8, "application/json"));
+
+            var json = await resp.Content.ReadAsStringAsync();
+            string mensagem;
+            try
+            {
+                var body = JsonSerializer.Deserialize<JsonElement>(json);
+                mensagem = body.TryGetProperty("mensagem", out var m) ? m.GetString() ?? "" : "Entrada registada.";
+            }
+            catch { mensagem = resp.IsSuccessStatusCode ? "Entrada registada." : "Erro ao registar entrada."; }
+
+            TempData[resp.IsSuccessStatusCode ? "Sucesso" : "Erro"] = mensagem;
             return RedirectToPage("Index");
         }
     }
@@ -219,11 +261,20 @@ namespace GymManagement.Web.Pages.Frequencias
         public SaidaModel(IHttpClientFactory f, IConfiguration c) { _f = f; _c = c; }
         public async Task<IActionResult> OnGetAsync(int id)
         {
-            var h = _f.CreateClient(); h.BaseAddress = new Uri(_c["ApiSettings:BaseUrl"]!);
+            var h = _f.CreateClient();
+            h.BaseAddress = new Uri(_c["ApiSettings:BaseUrl"]!);
             h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", HttpContext.Session.GetString("JWT"));
             var resp = await h.PutAsync($"api/Frequencias/{id}/Saida", null);
-            var body = JsonSerializer.Deserialize<Dictionary<string, string>>(await resp.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            TempData[resp.IsSuccessStatusCode ? "Sucesso" : "Erro"] = body?.GetValueOrDefault("mensagem") ?? "";
+            var json = await resp.Content.ReadAsStringAsync();
+            string mensagem;
+            try
+            {
+                var body = JsonSerializer.Deserialize<JsonElement>(json);
+                mensagem = body.TryGetProperty("mensagem", out var m) ? m.GetString() ?? "" : "Saída registada.";
+            }
+            catch { mensagem = resp.IsSuccessStatusCode ? "Saída registada." : "Erro ao registar saída."; }
+
+            TempData[resp.IsSuccessStatusCode ? "Sucesso" : "Erro"] = mensagem;
             return RedirectToPage("Index");
         }
     }

@@ -1,3 +1,47 @@
-@page "{id:int}"
+@page
 @model GymManagement.Web.Pages.Aulas.CancelarInscricaoModel
-@{ }
+@{
+    ViewData["Title"] = "Cancelar Inscrição";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Confirmar Cancelamento
+                    </h5>
+                </div>
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-calendar-x display-3 text-danger mb-3"></i>
+                    <h5>Tens a certeza que queres cancelar a inscrição?</h5>
+
+                    @if (!string.IsNullOrEmpty(Model.NomeAula))
+                    {
+                        <p class="text-muted">
+                            Aula: <strong>@Model.NomeAula</strong>
+                        </p>
+                    }
+
+                    <p class="text-muted small">Esta ação não pode ser revertida.</p>
+
+                    <div class="d-flex justify-content-center gap-3 mt-4">
+                        <form method="post">
+                            <input type="hidden" name="InscricaoId" value="@Model.InscricaoId" />
+                            <input type="hidden" name="AulaId" value="@Model.AulaId" />
+                            <button type="submit" class="btn btn-danger px-4">
+                                <i class="bi bi-x-circle me-1"></i> Sim, Cancelar
+                            </button>
+                        </form>
+                        <a asp-page="/MinhasInscricoes/Index" class="btn btn-outline-secondary px-4">
+                            <i class="bi bi-arrow-left me-1"></i> Voltar
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

@@ -19,11 +19,16 @@
                             {
                                 <tr>
                                     <td><strong>@i.GetProperty("aula").GetProperty("nome").GetString()</strong></td>
-                                    <td>@DateTime.Parse(i.GetProperty("aula").GetProperty("dataHora").GetString()!).ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>
+                                        @i.GetProperty("aula").GetProperty("diaSemanaLabel").GetString()
+                                        às @i.GetProperty("aula").GetProperty("hora").GetString()
+                                    </td>
                                     <td>@i.GetProperty("aula").GetProperty("instrutor").GetString()</td>
                                     <td>@i.GetProperty("aula").GetProperty("sala").GetString()</td>
                                     <td>
-                                        <a asp-page="/Aulas/CancelarInscricao" asp-route-id="@i.GetProperty("aula").GetProperty("id").GetInt32()" class="btn btn-sm btn-outline-danger">
+                                        <a asp-page="/Aulas/CancelarInscricao"
+                                               asp-route-id="@i.GetProperty("aula").GetProperty("id").GetInt32()"
+                                               class="btn btn-sm btn-outline-danger">
                                             <i class="bi bi-x-circle me-1"></i>Cancelar
                                         </a>
                                     </td>

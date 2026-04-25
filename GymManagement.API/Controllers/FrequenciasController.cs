@@ -48,11 +48,10 @@ namespace GymManagement.API.Controllers
             return Ok(result);
         }
 
-        /// <summary>POST /api/Frequencias/Entrada — regista entrada no ginásio.</summary>
+        /// <summary>POST /api/Frequencias/Entrada — regista entrada do próprio utilizador.</summary>
         [HttpPost("Entrada")]
         public async Task<IActionResult> RegistarEntrada([FromBody] string? observacoes = null)
         {
-            // Verificar se já está no ginásio
             var jaEntrou = await _db.Frequencias
                 .AnyAsync(f => f.UtilizadorId == UtilizadorId && !f.Saida.HasValue);
 
@@ -69,6 +68,33 @@ namespace GymManagement.API.Controllers
             _db.Frequencias.Add(freq);
             await _db.SaveChangesAsync();
             return Ok(new { mensagem = "Entrada registada com sucesso.", id = freq.Id, entrada = freq.Entrada });
+        }
+
+        /// <summary>POST /api/Frequencias/Entrada/{utilizadorId} — Admin regista entrada de um cliente.</summary>
+        [HttpPost("Entrada/{utilizadorId}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> RegistarEntradaAdmin(int utilizadorId, [FromBody] string? observacoes = null)
+        {
+            var utilizador = await _db.Utilizadores.FindAsync(utilizadorId);
+            if (utilizador == null)
+                return NotFound(new { mensagem = "Utilizador não encontrado." });
+
+            var jaEntrou = await _db.Frequencias
+                .AnyAsync(f => f.UtilizadorId == utilizadorId && !f.Saida.HasValue);
+
+            if (jaEntrou)
+                return BadRequest(new { mensagem = $"{utilizador.Nome} já tem uma entrada registada sem saída." });
+
+            var freq = new Frequencia
+            {
+                UtilizadorId = utilizadorId,
+                Entrada = DateTime.Now,
+                Observacoes = observacoes
+            };
+
+            _db.Frequencias.Add(freq);
+            await _db.SaveChangesAsync();
+            return Ok(new { mensagem = $"Entrada de {utilizador.Nome} registada com sucesso.", id = freq.Id, entrada = freq.Entrada });
         }
 
         /// <summary>PUT /api/Frequencias/{id}/Saida — regista saída do ginásio.</summary>

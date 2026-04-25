@@ -1,13 +1,37 @@
 @page
 @model GymManagement.Web.Pages.Frequencias.IndexModel
 @{ ViewData["Title"] = "Frequências"; }
+
 <div class="page-header"><div class="container"><h1><i class="bi bi-person-check"></i>Frequências</h1></div></div>
+
 <div class="d-flex justify-content-between align-items-center mb-3">
     <span class="text-muted small">@Model.Frequencias.Count registo(s)</span>
     <div class="d-flex gap-2">
-        <a asp-page="Entrada" class="btn btn-accent btn-sm"><i class="bi bi-box-arrow-in-right me-1"></i>Registar Entrada</a>
+        @if (Model.IsAdmin)
+        {
+            <!-- Admin: dropdown para selecionar o cliente -->
+            <form method="get" action="/Frequencias/Entrada" class="d-flex gap-2 align-items-center">
+                <select name="utilizadorId" class="form-select form-select-sm" style="min-width:200px;">
+                    <option value="0">-- Selecionar Cliente --</option>
+                    @foreach (var c in Model.Clientes)
+                    {
+                        <option value="@c.Id">@c.Nome (@c.Email)</option>
+                    }
+                </select>
+                <button type="submit" class="btn btn-accent btn-sm">
+                    <i class="bi bi-box-arrow-in-right me-1"></i>Registar Entrada
+                </button>
+            </form>
+        }
+        else
+        {
+            <a asp-page="Entrada" class="btn btn-accent btn-sm">
+                <i class="bi bi-box-arrow-in-right me-1"></i>Registar Entrada
+            </a>
+        }
     </div>
 </div>
+
 <div class="card"><div class="card-body p-0"><div class="table-responsive">
 <table class="table table-hover mb-0">
     <thead><tr><th>Utilizador</th><th>Entrada</th><th>Saída</th><th>Duração</th><th>Estado</th><th class="text-end">Ações</th></tr></thead>
@@ -30,7 +54,10 @@
                     {
                         <a asp-page="Saida" asp-route-id="@f.Id" class="btn btn-sm btn-outline-warning me-1"><i class="bi bi-box-arrow-right"></i> Saída</a>
                     }
-                    <a asp-page="Delete" asp-route-id="@f.Id" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                    @if (Model.IsAdmin)
+                    {
+                        <a asp-page="Delete" asp-route-id="@f.Id" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                    }
                 </td>
             </tr>
         }
