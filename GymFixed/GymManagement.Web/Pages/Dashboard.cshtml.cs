@@ -11,31 +11,34 @@ namespace GymManagement.Web.Pages
     {
         private readonly ApiService _api;
         private readonly IHttpClientFactory _factory;
-        private readonly IConfiguration _config;
 
-        public DashboardModel(ApiService api, IHttpClientFactory factory, IConfiguration config)
+        public DashboardModel(ApiService api, IHttpClientFactory factory)
         {
-            _api = api; _factory = factory; _config = config;
+            _api     = api;
+            _factory = factory;
         }
 
-        public List<AulaListDto> Aulas { get; set; } = new();
-        public int TotalAulas { get; set; }
-        public int TotalPlanos { get; set; }
+        public List<AulaListDto> Aulas         { get; set; } = new();
+        public int TotalAulas       { get; set; }
+        public int TotalPlanos      { get; set; }
         public int TotalInstrutores { get; set; }
-        public int AulasLotadas { get; set; }
+        public int AulasLotadas     { get; set; }
 
         public async Task<IActionResult> OnGetAsync()
         {
+            // Verificar via claims E via sessão (dupla segurança)
+            var roleFromClaims  = User.IsInRole("Admin");
             var roleFromSession = HttpContext.Session.GetString("Role") == "Admin";
-            if (!User.IsInRole("Admin") && !roleFromSession)
+
+            if (!roleFromClaims && !roleFromSession)
                 return RedirectToPage("/MinhasInscricoes");
 
             try
             {
-                Aulas = await _api.GetAulasAsync();
-                TotalAulas = Aulas.Count;
-                AulasLotadas = Aulas.Count(a => a.Lotada);
-                TotalPlanos = (await _api.GetPlanosAsync()).Count;
+                Aulas            = await _api.GetAulasAsync();
+                TotalAulas       = Aulas.Count;
+                AulasLotadas     = Aulas.Count(a => a.Lotada);
+                TotalPlanos      = (await _api.GetPlanosAsync()).Count;
 
                 var http = _factory.CreateClient("GymAPI");
                 http.DefaultRequestHeaders.Authorization =

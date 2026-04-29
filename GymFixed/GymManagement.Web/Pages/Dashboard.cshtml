@@ -1,0 +1,93 @@
+@page
+@model GymManagement.Web.Pages.DashboardModel
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid py-4">
+    <h2 class="mb-4">Dashboard</h2>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-title">Total de Aulas</h6>
+                    <h2 class="card-text fw-bold">@Model.TotalAulas</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-title">Planos de Treino</h6>
+                    <h2 class="card-text fw-bold">@Model.TotalPlanos</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-title">Instrutores</h6>
+                    <h2 class="card-text fw-bold">@Model.TotalInstrutores</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-title">Aulas Lotadas</h6>
+                    <h2 class="card-text fw-bold">@Model.AulasLotadas</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h4 class="mb-3">Próximas Aulas</h4>
+    @if (Model.Aulas.Count == 0)
+    {
+        <div class="alert alert-info">Não há aulas disponíveis de momento.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Nome</th>
+                        <th>Dia</th>
+                        <th>Hora</th>
+                        <th>Instrutor</th>
+                        <th>Sala</th>
+                        <th>Vagas</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var aula in Model.Aulas.Take(10))
+                    {
+                        <tr>
+                            <td>@aula.Nome</td>
+                            <td>@aula.DiaSemanaLabel</td>
+                            <td>@aula.Hora – @aula.HoraFim</td>
+                            <td>@aula.Instrutor</td>
+                            <td>@aula.Sala</td>
+                            <td>@aula.VagasDisponiveis / @aula.CapacidadeMaxima</td>
+                            <td>
+                                @if (aula.Lotada)
+                                {
+                                    <span class="badge bg-danger">Lotada</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">Disponível</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <a asp-page="/Aulas/Index" class="btn btn-outline-primary">Ver todas as aulas →</a>
+    }
+</div>

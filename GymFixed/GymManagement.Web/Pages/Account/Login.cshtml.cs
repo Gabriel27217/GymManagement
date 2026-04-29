@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
@@ -29,8 +28,7 @@ namespace GymManagement.Web.Pages.Account
         {
             if (User.Identity?.IsAuthenticated == true)
             {
-                var role = HttpContext.Session.GetString("Role");
-                return role == "Admin"
+                return User.IsInRole("Admin")
                     ? RedirectToPage("/Dashboard")
                     : RedirectToPage("/MinhasInscricoes");
             }
@@ -44,7 +42,6 @@ namespace GymManagement.Web.Pages.Account
                 return Page();
 
             var client = _clientFactory.CreateClient("GymAPI");
-
             var content = new StringContent(
                 JsonSerializer.Serialize(Input),
                 Encoding.UTF8,
@@ -70,8 +67,7 @@ namespace GymManagement.Web.Pages.Account
             var json = await response.Content.ReadAsStringAsync();
             using var doc = JsonDocument.Parse(json);
 
-            // FIX: API devolve PascalCase (Token, Nome, Role) — leitura case-insensitive
-            string? token = null, nome = null, role = null;
+            string? token = null, nome = null, role = null, email = null, userId = null;
             foreach (var prop in doc.RootElement.EnumerateObject())
             {
                 switch (prop.Name.ToLowerInvariant())
@@ -79,6 +75,7 @@ namespace GymManagement.Web.Pages.Account
                     case "token": token = prop.Value.GetString(); break;
                     case "nome":  nome  = prop.Value.GetString(); break;
                     case "role":  role  = prop.Value.GetString(); break;
+                    case "email": email = prop.Value.GetString(); break;
                 }
             }
 
@@ -88,34 +85,41 @@ namespace GymManagement.Web.Pages.Account
                 return Page();
             }
 
-            nome ??= "";
-            role ??= "";
+            nome  ??= "";
+            role  ??= "";
+            email ??= "";
 
-            HttpContext.Session.SetString("JWT", token);
-            HttpContext.Session.SetString("Role", role);
-            HttpContext.Session.SetString("NomeUtilizador", nome);
+            // Guardar na sessão
+            HttpContext.Session.SetString("JWT",             token);
+            HttpContext.Session.SetString("Role",            role);
+            HttpContext.Session.SetString("NomeUtilizador",  nome);
 
-            var handler = new JwtSecurityTokenHandler();
-            var jwt = handler.ReadJwtToken(token);
-            var claims = jwt.Claims.ToList();
+            // ── Construir os claims manualmente a partir da resposta da API ──
+            // NÃO usar JwtSecurityTokenHandler.ReadJwtToken porque ele remapeia
+            // ClaimTypes.Role para o tipo curto "role", quebrando User.IsInRole().
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name,  nome),
+                new Claim(ClaimTypes.Email, email),
+                // CRÍTICO: usar ClaimTypes.Role para que User.IsInRole() funcione
+                new Claim(ClaimTypes.Role,  role),
+            };
 
-            var nameClaim = claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)
-                         ?? claims.FirstOrDefault(c => c.Type == ClaimTypes.Name);
-            if (nameClaim != null && !claims.Any(c => c.Type == ClaimTypes.Name))
-                claims.Add(new Claim(ClaimTypes.Name, nameClaim.Value));
-
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var identity  = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
 
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 principal,
-                new AuthenticationProperties { IsPersistent = false });
+                new AuthenticationProperties
+                {
+                    IsPersistent    = false,
+                    ExpiresUtc      = DateTimeOffset.UtcNow.AddHours(8)
+                });
 
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 return Redirect(returnUrl);
 
-            // FIX: Admin -> Dashboard, outros -> MinhasInscricoes
             return role == "Admin"
                 ? RedirectToPage("/Dashboard")
                 : RedirectToPage("/MinhasInscricoes");

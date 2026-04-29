@@ -1,0 +1,34 @@
+@page
+@model GymManagement.Web.Pages.Utilizadores.IndexModel
+@{ ViewData["Title"] = "Utilizadores"; }
+<div class="page-header"><div class="container"><h1><i class="bi bi-people"></i>Utilizadores</h1></div></div>
+<div class="card"><div class="card-body p-0"><div class="table-responsive">
+<table class="table table-hover mb-0">
+    <thead><tr><th>Nome</th><th>Email</th><th>Telefone</th><th>Tipo</th><th>Registo</th><th>Estado</th><th class="text-end">Ações</th></tr></thead>
+    <tbody>
+        @foreach (var u in Model.Utilizadores)
+        {
+            <tr>
+                <td><strong>@u.Nome</strong></td>
+                <td>@u.Email</td>
+                <td>@(u.Telefone ?? "—")</td>
+                <td>
+                    @if (u.Role == "Admin")
+                        { <span class="badge-admin">ADMIN</span> }
+                    else
+                        { <span class="badge bg-secondary">Cliente</span> }
+                </td>
+                <td>@u.DataRegisto.ToString("dd/MM/yyyy")</td>
+                <td>@if (u.Ativo) { <span class="badge bg-success">Ativo</span> } else { <span class="badge bg-danger">Inativo</span> }</td>
+                <td class="text-end">
+                    <a asp-page="ToggleAtivo" asp-route-id="@u.Id" class="btn btn-sm btn-outline-secondary me-1" title="Ativar/Desativar">
+                        <i class="bi bi-toggle-@(u.Ativo ? "on" : "off")"></i>
+                    </a>
+                    <a asp-page="Delete" asp-route-id="@u.Id" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                </td>
+            </tr>
+        }
+        @if (!Model.Utilizadores.Any()) { <tr><td colspan="7" class="text-center text-muted py-4">Nenhum utilizador encontrado.</td></tr> }
+    </tbody>
+</table>
+</div></div></div>

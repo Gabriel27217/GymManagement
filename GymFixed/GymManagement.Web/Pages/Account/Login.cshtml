@@ -1,0 +1,52 @@
+@page
+@model GymManagement.Web.Pages.Account.LoginModel
+@{ ViewData["Title"] = "Entrar"; Layout = "_Layout"; }
+
+<div class="min-vh-100 d-flex align-items-center justify-content-center" style="background:var(--gym-dark)">
+    <div style="width:100%;max-width:420px;padding:20px">
+        <div class="text-center mb-4">
+            <h1 style="font-family:'Oswald',sans-serif;color:var(--gym-accent);font-size:2.5rem;letter-spacing:3px">
+                <span style="color:#fff">GYM</span>MANAGEMENT
+            </h1>
+            <p style="color:#666;font-size:.9rem">Sistema de Gestão de Ginásio</p>
+        </div>
+        <div class="card">
+            <div class="card-header"><i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sessão</div>
+            <div class="card-body">
+                @if (!string.IsNullOrEmpty(Model.MensagemErro))
+                {
+                    <div class="alert alert-danger py-2"><i class="bi bi-exclamation-triangle me-2"></i>@Model.MensagemErro</div>
+                }
+                <form method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+                    <div class="mb-3">
+                        <label asp-for="Input.Email" class="form-label">Email</label>
+                        <input asp-for="Input.Email" class="form-control" placeholder="email@exemplo.com" autocomplete="email" />
+                        <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-4">
+                        <label asp-for="Input.Password" class="form-label">Password</label>
+                        <input asp-for="Input.Password" class="form-control" type="password" placeholder="••••••••" autocomplete="current-password" />
+                        <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                    </div>
+                    <button type="submit" class="btn btn-accent w-100">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Entrar
+                    </button>
+                </form>
+                <hr class="my-3" style="border-color:#eee">
+                <div class="text-center">
+                    <small class="text-muted">Não tens conta? <a asp-page="/Account/Register">Registar</a></small>
+                </div>
+                <div class="mt-3 p-2 rounded" style="background:#f8f9fa;font-size:.75rem;color:#666">
+                    <strong>Credenciais de teste:</strong><br>
+                    Admin: admin@gym.pt / password<br>
+                    Cliente: cliente@gym.pt / password
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

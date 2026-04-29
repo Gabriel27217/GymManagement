@@ -1,0 +1,15 @@
+@page
+@model GymManagement.Web.Pages.Account.LogoutModel
+@{
+    ViewData["Title"] = "Terminar Sessão";
+}
+
+<div class="container py-5 text-center">
+    <h4 class="mb-4">Terminar sessão?</h4>
+    <form method="post">
+        <button type="submit" class="btn btn-danger px-5">
+            <i class="bi bi-box-arrow-right me-1"></i> Sair
+        </button>
+        <a asp-page="/Dashboard" class="btn btn-outline-secondary ms-2 px-5">Cancelar</a>
+    </form>
+</div>

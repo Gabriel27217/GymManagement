@@ -1,98 +1,125 @@
 @page
 @model GymManagement.Web.Pages.DashboardModel
-@{ ViewData["Title"] = "Dashboard"; }
+@{
+    ViewData["Title"] = "Dashboard";
+}
 
-<div class="page-header">
-    <div class="container">
-        <h1><i class="bi bi-speedometer2"></i>Dashboard — Administração</h1>
-    </div>
-</div>
+<div class="container-fluid py-4">
+    <h2 class="mb-4">Dashboard — Administração</h2>
 
-<div class="row g-3 mb-4">
-    <div class="col-6 col-md-3">
-        <div class="stat-card">
-            <div class="d-flex justify-content-between">
-                <div><div class="number">@Model.TotalAulas</div><div class="label">Aulas no Horário</div></div>
-                <i class="bi bi-calendar3" style="font-size:2rem;color:#333"></i>
-            </div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="stat-card">
-            <div class="d-flex justify-content-between">
-                <div><div class="number">@Model.TotalPlanos</div><div class="label">Planos</div></div>
-                <i class="bi bi-journal-text" style="font-size:2rem;color:#333"></i>
-            </div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="stat-card">
-            <div class="d-flex justify-content-between">
-                <div><div class="number">@Model.TotalInstrutores</div><div class="label">Instrutores</div></div>
-                <i class="bi bi-person-badge" style="font-size:2rem;color:#333"></i>
-            </div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="stat-card">
-            <div class="d-flex justify-content-between">
-                <div><div class="number">@Model.AulasLotadas</div><div class="label">Aulas Lotadas</div></div>
-                <i class="bi bi-people" style="font-size:2rem;color:#333"></i>
-            </div>
-        </div>
-    </div>
-</div>
+    @if (TempData["Sucesso"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">@TempData["Sucesso"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    }
+    @if (TempData["Erro"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">@TempData["Erro"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    }
 
-<div class="row g-4">
-    <div class="col-lg-8">
-        <div class="card">
-            <div class="card-header"><i class="bi bi-calendar-week me-2"></i>Horário da Semana</div>
-            <div class="card-body p-0">
-                @if (Model.Aulas.Any())
-                {
-                    var dias = new[] { "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo" };
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead><tr><th>Dia</th><th>Hora</th><th>Aula</th><th>Instrutor</th><th>Sala</th><th>Vagas</th></tr></thead>
-                            <tbody>
-                                @foreach (var a in Model.Aulas)
+    
+    <div class="row g-4 mb-5">
+        <div class="col-6 col-md-3">
+            <div class="card text-white bg-primary shadow-sm h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div class="fs-6 fw-semibold">Total de Aulas</div>
+                    <div class="display-5 fw-bold mt-2">@Model.TotalAulas</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card text-white bg-success shadow-sm h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div class="fs-6 fw-semibold">Planos de Treino</div>
+                    <div class="display-5 fw-bold mt-2">@Model.TotalPlanos</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card text-white bg-info shadow-sm h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div class="fs-6 fw-semibold">Instrutores</div>
+                    <div class="display-5 fw-bold mt-2">@Model.TotalInstrutores</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card text-white bg-danger shadow-sm h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div class="fs-6 fw-semibold">Aulas Lotadas</div>
+                    <div class="display-5 fw-bold mt-2">@Model.AulasLotadas</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+   
+    <h5 class="mb-3">Gestão Rápida</h5>
+    <div class="row g-3 mb-5">
+        <div class="col-6 col-md-2">
+            <a asp-page="/Aulas/Index" class="btn btn-outline-primary w-100">🏋️ Aulas</a>
+        </div>
+        <div class="col-6 col-md-2">
+            <a asp-page="/Instrutores/Index" class="btn btn-outline-success w-100">👤 Instrutores</a>
+        </div>
+        <div class="col-6 col-md-2">
+            <a asp-page="/Salas/Index" class="btn btn-outline-secondary w-100">🚪 Salas</a>
+        </div>
+        <div class="col-6 col-md-2">
+            <a asp-page="/PlanosTreino/Index" class="btn btn-outline-info w-100">📋 Planos</a>
+        </div>
+        <div class="col-6 col-md-2">
+            <a asp-page="/Utilizadores/Index" class="btn btn-outline-warning w-100">👥 Utilizadores</a>
+        </div>
+        <div class="col-6 col-md-2">
+            <a asp-page="/Frequencias/Index" class="btn btn-outline-dark w-100">📊 Frequências</a>
+        </div>
+    </div>
+
+    
+    <h5 class="mb-3">Aulas Ativas</h5>
+    @if (!Model.Aulas.Any())
+    {
+        <div class="alert alert-info">Não há aulas registadas.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Nome</th>
+                        <th>Dia</th>
+                        <th>Horário</th>
+                        <th>Instrutor</th>
+                        <th>Sala</th>
+                        <th>Vagas</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var aula in Model.Aulas)
+                    {
+                        <tr>
+                            <td>@aula.Nome</td>
+                            <td>@aula.DiaSemanaLabel</td>
+                            <td>@aula.Hora – @aula.HoraFim</td>
+                            <td>@aula.Instrutor</td>
+                            <td>@aula.Sala</td>
+                            <td>@aula.VagasDisponiveis / @aula.CapacidadeMaxima</td>
+                            <td>
+                                @if (aula.Lotada)
                                 {
-                                    <tr>
-                                        <td><span class="badge bg-dark">@a.DiaSemanaLabel</span></td>
-                                        <td>@a.Hora – @a.HoraFim</td>
-                                        <td><strong>@a.Nome</strong></td>
-                                        <td>@a.Instrutor</td>
-                                        <td>@a.Sala</td>
-                                        <td>
-                                            @if (a.Lotada)
-                                                { <span class="badge bg-danger">Lotada</span> }
-                                            else
-                                                { <span class="badge bg-success">@a.VagasDisponiveis/@a.CapacidadeMaxima</span> }
-                                        </td>
-                                    </tr>
+                                    <span class="badge bg-danger">Lotada</span>
                                 }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-                else
-                {
-                    <p class="text-muted text-center p-4">Sem aulas no horário.</p>
-                }
-            </div>
+                                else
+                                {
+                                    <span class="badge bg-success">Disponível</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
-    </div>
-    <div class="col-lg-4">
-        <div class="card">
-            <div class="card-header"><i class="bi bi-lightning me-2"></i>Ações Rápidas</div>
-            <div class="card-body d-grid gap-2">
-                <a asp-page="/Aulas/Create"        class="btn btn-accent"><i class="bi bi-plus-circle me-2"></i>Nova Aula</a>
-                <a asp-page="/PlanosTreino/Create" class="btn btn-primary"><i class="bi bi-journal-plus me-2"></i>Novo Plano</a>
-                <a asp-page="/Instrutores/Index"   class="btn btn-primary"><i class="bi bi-person-badge me-2"></i>Gerir Instrutores</a>
-                <a asp-page="/Salas/Index"         class="btn btn-primary"><i class="bi bi-door-open me-2"></i>Gerir Salas</a>
-                <a asp-page="/Utilizadores/Index"  class="btn btn-primary"><i class="bi bi-people me-2"></i>Gerir Utilizadores</a>
-                <a asp-page="/Frequencias/Index"   class="btn btn-primary"><i class="bi bi-person-check me-2"></i>Ver Frequências</a>
-            </div>
-        </div>
-    </div>
-</div>
+    }
+</div>min.</p>

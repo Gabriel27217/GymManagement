@@ -1,0 +1,297 @@
+@page "{id:int}"
+@model GymManagement.Web.Pages.Aulas.EditModel
+@{
+    ViewData["Title"] = "Editar Aula";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <h1>
+            <i class="bi bi-pencil-square"></i> Editar Aula
+        </h1>
+        <p class="text-muted mb-0">Atualize os detalhes da aula</p>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Alert de Erro -->
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+                        <strong>Não foi possível atualizar a aula</strong>
+                    </div>
+                    <ul class="mb-0 ms-5">
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <li>@error.ErrorMessage</li>
+                        }
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+                </div>
+            }
+
+            <!-- Formulário -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <i class="bi bi-calendar-check me-2"></i>Detalhes da Aula
+                </div>
+                <div class="card-body">
+                    <form method="post" id="formEditarAula">
+                        <input type="hidden" asp-for="AulaId" />
+
+                        <div class="row g-3">
+                            <!-- Nome da Aula -->
+                            <div class="col-md-12">
+                                <label asp-for="Aula.Nome" class="form-label required">
+                                    <i class="bi bi-card-heading me-1"></i>Nome da Aula
+                                </label>
+                                <input asp-for="Aula.Nome" class="form-control" placeholder="Ex: Yoga Relaxante" />
+                                <span asp-validation-for="Aula.Nome" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Categoria -->
+                            <div class="col-md-6">
+                                <label asp-for="Aula.Categoria" class="form-label required">
+                                    <i class="bi bi-tag me-1"></i>Categoria
+                                </label>
+                                <select asp-for="Aula.Categoria" class="form-select">
+                                    <option value="1">Yoga</option>
+                                    <option value="2">Pilates</option>
+                                    <option value="3">Spinning</option>
+                                    <option value="4">Musculação</option>
+                                    <option value="5">Zumba</option>
+                                    <option value="6">Boxe</option>
+                                    <option value="7">Natação</option>
+                                    <option value="8">Crossfit</option>
+                                    <option value="99">Outro</option>
+                                </select>
+                                <span asp-validation-for="Aula.Categoria" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Dia da Semana -->
+                            <div class="col-md-6">
+                                <label asp-for="Aula.DiaSemana" class="form-label required">
+                                    <i class="bi bi-calendar-week me-1"></i>Dia da Semana
+                                </label>
+                                <select asp-for="Aula.DiaSemana" class="form-select">
+                                    <option value="1">Segunda-feira</option>
+                                    <option value="2">Terça-feira</option>
+                                    <option value="3">Quarta-feira</option>
+                                    <option value="4">Quinta-feira</option>
+                                    <option value="5">Sexta-feira</option>
+                                    <option value="6">Sábado</option>
+                                    <option value="7">Domingo</option>
+                                </select>
+                                <span asp-validation-for="Aula.DiaSemana" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Hora -->
+                            <div class="col-md-6">
+                                <label asp-for="Aula.Hora" class="form-label required">
+                                    <i class="bi bi-clock me-1"></i>Hora de Início
+                                </label>
+                                <input asp-for="Aula.Hora" type="time" class="form-control" />
+                                <span asp-validation-for="Aula.Hora" class="text-danger small"></span>
+                                <small class="form-text text-muted">
+                                    <i class="bi bi-info-circle"></i> Horário entre 06:00 e 23:00
+                                </small>
+                            </div>
+
+                            <!-- Duração -->
+                            <div class="col-md-6">
+                                <label asp-for="Aula.DuracaoMinutos" class="form-label required">
+                                    <i class="bi bi-hourglass-split me-1"></i>Duração
+                                </label>
+                                <div class="input-group">
+                                    <input asp-for="Aula.DuracaoMinutos" type="number" class="form-control" 
+                                           min="15" max="180" step="15" />
+                                    <span class="input-group-text">minutos</span>
+                                </div>
+                                <span asp-validation-for="Aula.DuracaoMinutos" class="text-danger small"></span>
+                                <small class="form-text text-muted">
+                                    <i class="bi bi-info-circle"></i> Entre 15 e 180 minutos
+                                </small>
+                            </div>
+
+                            <!-- Instrutor -->
+                            <div class="col-md-6">
+                                <label asp-for="Aula.InstrutorId" class="form-label required">
+                                    <i class="bi bi-person-badge me-1"></i>Instrutor
+                                </label>
+                                <select asp-for="Aula.InstrutorId" class="form-select">
+                                    <option value="">-- Selecione --</option>
+                                    @foreach (var instrutor in Model.Instrutores)
+                                    {
+                                        <option value="@instrutor.Id">
+                                            @instrutor.Nome
+                                            @if (!string.IsNullOrEmpty(instrutor.Especialidade))
+                                            {
+                                                <text> - @instrutor.Especialidade</text>
+                                            }
+                                        </option>
+                                    }
+                                </select>
+                                <span asp-validation-for="Aula.InstrutorId" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Sala -->
+                            <div class="col-md-6">
+                                <label asp-for="Aula.SalaId" class="form-label required">
+                                    <i class="bi bi-door-open me-1"></i>Sala
+                                </label>
+                                <select asp-for="Aula.SalaId" class="form-select">
+                                    <option value="">-- Selecione --</option>
+                                    @foreach (var sala in Model.Salas)
+                                    {
+                                        <option value="@sala.Id">
+                                            @sala.Nome (Cap: @sala.CapacidadeMaxima)
+                                        </option>
+                                    }
+                                </select>
+                                <span asp-validation-for="Aula.SalaId" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Preview da Aula -->
+                            <div class="col-12">
+                                <div class="alert alert-info" id="previewAula" style="display: none;">
+                                    <strong><i class="bi bi-eye me-2"></i>Preview:</strong>
+                                    <span id="previewTexto"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botões -->
+                        <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                            <a asp-page="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="btnSubmit">
+                                <span class="spinner-border spinner-border-sm me-2 d-none" role="status" id="spinner"></span>
+                                <i class="bi bi-check-lg me-2" id="iconSubmit"></i>
+                                <span id="textSubmit">Atualizar Aula</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Avisos Importantes -->
+            <div class="alert alert-warning mt-3">
+                <h6 class="alert-heading">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Importante
+                </h6>
+                <ul class="mb-0">
+                    <li>Verifique se não há conflitos de horário na mesma sala</li>
+                    <li>O instrutor não pode ter duas aulas ao mesmo tempo</li>
+                    <li>A capacidade da sala será o limite de inscrições</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // Preview dinâmico da aula
+        const form = document.getElementById('formEditarAula');
+        const inputs = form.querySelectorAll('input, select');
+        const preview = document.getElementById('previewAula');
+        const previewTexto = document.getElementById('previewTexto');
+
+        const diasSemana = ['', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+
+        function atualizarPreview() {
+            const nome = document.getElementById('Aula_Nome').value;
+            const dia = parseInt(document.getElementById('Aula_DiaSemana').value);
+            const hora = document.getElementById('Aula_Hora').value;
+            const duracao = parseInt(document.getElementById('Aula_DuracaoMinutos').value);
+
+            if (nome && dia && hora && duracao) {
+                const horaFim = calcularHoraFim(hora, duracao);
+                previewTexto.innerHTML = `
+                    <strong>${nome}</strong> - 
+                    ${diasSemana[dia]}, ${hora}-${horaFim} (${duracao} min)
+                `;
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        function calcularHoraFim(horaInicio, minutos) {
+            const [h, m] = horaInicio.split(':').map(Number);
+            const totalMinutos = h * 60 + m + minutos;
+            const novaHora = Math.floor(totalMinutos / 60);
+            const novosMin = totalMinutos % 60;
+            return `${String(novaHora).padStart(2, '0')}:${String(novosMin).padStart(2, '0')}`;
+        }
+
+        inputs.forEach(input => {
+            input.addEventListener('change', atualizarPreview);
+            input.addEventListener('input', atualizarPreview);
+        });
+
+        // Loading state no submit
+        form.addEventListener('submit', function() {
+            const btnSubmit = document.getElementById('btnSubmit');
+            const spinner = document.getElementById('spinner');
+            const icon = document.getElementById('iconSubmit');
+            const text = document.getElementById('textSubmit');
+
+            btnSubmit.disabled = true;
+            spinner.classList.remove('d-none');
+            icon.classList.add('d-none');
+            text.textContent = 'A atualizar...';
+        });
+
+        // Validação de horário no lado do cliente
+        form.addEventListener('submit', function(e) {
+            const hora = document.getElementById('Aula_Hora').value;
+            const duracao = parseInt(document.getElementById('Aula_DuracaoMinutos').value);
+
+            if (hora && duracao) {
+                const [h, m] = hora.split(':').map(Number);
+                const minInicio = h * 60 + m;
+                const minFim = minInicio + duracao;
+
+                // Não pode começar antes das 6h
+                if (minInicio < 6 * 60) {
+                    e.preventDefault();
+                    alert('⚠️ A aula não pode começar antes das 06:00!');
+                    resetButton();
+                    return false;
+                }
+
+                // Não pode terminar depois das 23h
+                if (minFim > 23 * 60) {
+                    e.preventDefault();
+                    alert('⚠️ A aula não pode terminar depois das 23:00!');
+                    resetButton();
+                    return false;
+                }
+            }
+        });
+
+        function resetButton() {
+            const btnSubmit = document.getElementById('btnSubmit');
+            const spinner = document.getElementById('spinner');
+            const icon = document.getElementById('iconSubmit');
+            const text = document.getElementById('textSubmit');
+
+            btnSubmit.disabled = false;
+            spinner.classList.add('d-none');
+            icon.classList.remove('d-none');
+            text.textContent = 'Atualizar Aula';
+        }
+
+        // Inicializar preview
+        atualizarPreview();
+    </script>
+}
