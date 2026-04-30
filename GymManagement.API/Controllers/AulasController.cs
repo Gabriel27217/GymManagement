@@ -51,7 +51,7 @@ namespace GymManagement.API.Controllers
             var horaFim = hora.AddMinutes(dto.DuracaoMinutos);
 
             // ========================================
-            // VALIDAÇÃO 1: CONFLITO DE HORÁRIO NA SALA
+            // VALIDAÇÃO 1: CONFLITO DE HORÁRIO NA SALA AAA
             // ========================================
             var conflitoSala = await _db.Aulas
                 .Where(a => a.SalaId == dto.SalaId 
