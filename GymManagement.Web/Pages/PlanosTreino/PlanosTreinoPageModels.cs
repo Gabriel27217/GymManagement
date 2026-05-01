@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace GymManagement.Web.Pages.PlanosTreino
 {
-    public class IndexModel : PageModel
+    public partial class IndexModel : PageModel
     {
         private readonly ApiService _api;
         public IndexModel(ApiService api) => _api = api;
@@ -17,7 +17,7 @@ namespace GymManagement.Web.Pages.PlanosTreino
         public async Task OnGetAsync() { try { Planos = await _api.GetPlanosAsync(); } catch { } }
     }
 
-    public class CreateModel : PageModel
+    public partial class CreateModel : PageModel
     {
         private readonly ApiService _api;
         private readonly IHttpClientFactory _factory;
@@ -61,7 +61,80 @@ namespace GymManagement.Web.Pages.PlanosTreino
         }
     }
 
-    public class DeleteModel : PageModel
+    public partial class EditModel : PageModel
+    {
+        private readonly IHttpClientFactory _factory;
+        private readonly IConfiguration _config;
+
+        public EditModel(IHttpClientFactory factory, IConfiguration config)
+        { _factory = factory; _config = config; }
+
+        [BindProperty] public int PlanoId { get; set; }
+        [BindProperty, Required, Display(Name = "Nome do Plano")] public string Nome { get; set; } = string.Empty;
+        [BindProperty, Required, Display(Name = "Descrição")] public string Descricao { get; set; } = string.Empty;
+        [BindProperty, Range(15, 180), Display(Name = "Duração (minutos)")] public int DuracaoMinutos { get; set; } = 60;
+        [BindProperty, Display(Name = "Nível")] public int Nivel { get; set; } = 0;
+        [BindProperty, Display(Name = "Objetivo")] public int Objetivo { get; set; } = 0;
+        [BindProperty, Display(Name = "Ativo")] public bool Ativo { get; set; } = true;
+
+        private HttpClient CriarCliente()
+        {
+            var http = _factory.CreateClient();
+            http.BaseAddress = new Uri(_config["ApiSettings:BaseUrl"]!);
+            var token = HttpContext.Session.GetString("JWT") ?? User.FindFirst("jwt")?.Value ?? "";
+            if (!string.IsNullOrEmpty(token))
+                http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            return http;
+        }
+
+        public async Task<IActionResult> OnGetAsync([FromRoute] int id)
+        {
+            try
+            {
+                var http = CriarCliente();
+                var resp = await http.GetAsync($"api/PlanosTreino/{id}");
+                if (!resp.IsSuccessStatusCode)
+                {
+                    TempData["Erro"] = $"Não foi possível carregar o plano (HTTP {(int)resp.StatusCode}).";
+                    return RedirectToPage("Index");
+                }
+                var json = await resp.Content.ReadAsStringAsync();
+                using var doc = System.Text.Json.JsonDocument.Parse(json);
+                var root = doc.RootElement;
+                PlanoId = root.GetProperty("id").GetInt32();
+                Nome = root.GetProperty("nome").GetString() ?? "";
+                Descricao = root.GetProperty("descricao").GetString() ?? "";
+                DuracaoMinutos = root.GetProperty("duracaoMinutos").GetInt32();
+                Nivel = root.GetProperty("nivel").GetInt32();
+                Objetivo = root.GetProperty("objetivo").GetInt32();
+                Ativo = root.GetProperty("ativo").GetBoolean();
+            }
+            catch (Exception ex)
+            {
+                TempData["Erro"] = $"Erro ao ligar à API: {ex.Message}";
+                return RedirectToPage("Index");
+            }
+            return Page();
+        }
+
+        public async Task<IActionResult> OnPostAsync()
+        {
+            if (!ModelState.IsValid) return Page();
+
+            var http = CriarCliente();
+            var body = new { Id = PlanoId, Nome, Descricao, DuracaoMinutos, Nivel, Objetivo, Ativo };
+            var resp = await http.PutAsync($"api/PlanosTreino/{PlanoId}",
+                new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json"));
+
+            if (!resp.IsSuccessStatusCode)
+            { ModelState.AddModelError("", $"Erro ao guardar plano (HTTP {(int)resp.StatusCode})."); return Page(); }
+
+            TempData["Sucesso"] = $"Plano '{Nome}' atualizado com sucesso.";
+            return RedirectToPage("Index");
+        }
+    }
+
+    public partial class DeleteModel : PageModel
     {
         private readonly ApiService _api;
         private readonly IHttpClientFactory _factory;

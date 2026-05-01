@@ -75,7 +75,7 @@ builder.Services.AddSwaggerGen(c =>
 // ── CORS (permitir chamadas da Web App) ─────────────────────────
 builder.Services.AddCors(options =>
     options.AddPolicy("WebApp", policy =>
-        policy.WithOrigins("https://localhost:7001", "http://localhost:5001")
+        policy.WithOrigins("https://localhost:7001", "http://localhost:5001", "https://localhost:63401", "http://localhost:63403")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials()));

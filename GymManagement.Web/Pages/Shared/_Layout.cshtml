@@ -83,11 +83,10 @@
             <span class="navbar-toggler-icon" style="filter:invert(1)"></span>
         </button>
 @{
-    // FIX: usar User (cookie claims) em vez de Session para verificar autenticação
-    // A sessão pode não estar disponível imediatamente após redirect
-    var isAuth    = User.Identity?.IsAuthenticated == true;
+    // FIX: usar cookie claims — sessão pode estar vazia após redirect
+    var isAuth     = User.Identity?.IsAuthenticated == true;
     var cookieRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "";
-    var cookieNome = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value
+    var cookieNome = User.FindFirst("nome")?.Value
                   ?? ViewContext.HttpContext.Session.GetString("NomeUtilizador")
                   ?? "";
 }

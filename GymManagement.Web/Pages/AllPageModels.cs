@@ -18,7 +18,7 @@ namespace GymManagement.Web.Pages.Salas
         public int TotalAulas { get; set; }
     }
 
-    public class IndexModel : PageModel
+    public partial class IndexModel : PageModel
     {
         private readonly IHttpClientFactory _f; private readonly IConfiguration _c;
         public IndexModel(IHttpClientFactory f, IConfiguration c) { _f = f; _c = c; }
@@ -27,11 +27,11 @@ namespace GymManagement.Web.Pages.Salas
         {
             try { var h = Http(); var j = await h.GetStringAsync("api/Salas"); Salas = JsonSerializer.Deserialize<List<SalaDto>>(j, Opts()) ?? new(); } catch { }
         }
-        private HttpClient Http() { var h = _f.CreateClient(); h.BaseAddress = new Uri(_c["ApiSettings:BaseUrl"]!); h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", HttpContext.Session.GetString("JWT")); return h; }
+        private HttpClient Http() { var h = _f.CreateClient(); h.BaseAddress = new Uri(_c["ApiSettings:BaseUrl"]!); h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", (HttpContext.Session.GetString("JWT") ?? User.FindFirst("jwt")?.Value ?? "")); return h; }
         private static JsonSerializerOptions Opts() => new() { PropertyNameCaseInsensitive = true };
     }
 
-    public class CreateModel : PageModel
+    public partial class CreateModel : PageModel
     {
         private readonly IHttpClientFactory _f; private readonly IConfiguration _c;
         public CreateModel(IHttpClientFactory f, IConfiguration c) { _f = f; _c = c; }
@@ -47,10 +47,10 @@ namespace GymManagement.Web.Pages.Salas
             if (!resp.IsSuccessStatusCode) { ModelState.AddModelError("", "Erro ao criar sala."); return Page(); }
             TempData["Sucesso"] = $"Sala '{Nome}' criada."; return RedirectToPage("Index");
         }
-        private HttpClient Http() { var h = _f.CreateClient(); h.BaseAddress = new Uri(_c["ApiSettings:BaseUrl"]!); h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", HttpContext.Session.GetString("JWT")); return h; }
+        private HttpClient Http() { var h = _f.CreateClient(); h.BaseAddress = new Uri(_c["ApiSettings:BaseUrl"]!); h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", (HttpContext.Session.GetString("JWT") ?? User.FindFirst("jwt")?.Value ?? "")); return h; }
     }
 
-    public class EditModel : PageModel
+    public partial class EditModel : PageModel
     {
         private readonly IHttpClientFactory _f; private readonly IConfiguration _c;
         public EditModel(IHttpClientFactory f, IConfiguration c) { _f = f; _c = c; }
@@ -59,10 +59,14 @@ namespace GymManagement.Web.Pages.Salas
         [BindProperty, Required, Range(1,500), Display(Name = "Capacidade Máxima")] public int CapacidadeMaxima { get; set; }
         [BindProperty, Display(Name = "Descrição")] public string? Descricao { get; set; }
         [BindProperty] public bool Ativa { get; set; } = true;
-        public async Task<IActionResult> OnGetAsync(int id)
+        public async Task<IActionResult> OnGetAsync([FromRoute] int id)
         {
             var h = Http(); var resp = await h.GetAsync($"api/Salas/{id}");
-            if (!resp.IsSuccessStatusCode) return NotFound();
+            if (!resp.IsSuccessStatusCode)
+            {
+                TempData["Erro"] = $"Erro ao carregar dados (HTTP {(int)resp.StatusCode}). Verifique se a API está a correr.";
+                return RedirectToPage("Index");
+            }
             var s = JsonSerializer.Deserialize<SalaDto>(await resp.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
             SalaId = s.Id; Nome = s.Nome; CapacidadeMaxima = s.CapacidadeMaxima; Descricao = s.Descricao; Ativa = s.Ativa;
             return Page();
@@ -74,29 +78,33 @@ namespace GymManagement.Web.Pages.Salas
             await h.PutAsync($"api/Salas/{SalaId}", new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json"));
             TempData["Sucesso"] = "Sala atualizada."; return RedirectToPage("Index");
         }
-        private HttpClient Http() { var h = _f.CreateClient(); h.BaseAddress = new Uri(_c["ApiSettings:BaseUrl"]!); h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", HttpContext.Session.GetString("JWT")); return h; }
+        private HttpClient Http() { var h = _f.CreateClient(); h.BaseAddress = new Uri(_c["ApiSettings:BaseUrl"]!); h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", (HttpContext.Session.GetString("JWT") ?? User.FindFirst("jwt")?.Value ?? "")); return h; }
     }
 
-    public class DeleteModel : PageModel
+    public partial class DeleteModel : PageModel
     {
         private readonly IHttpClientFactory _f; private readonly IConfiguration _c;
         public DeleteModel(IHttpClientFactory f, IConfiguration c) { _f = f; _c = c; }
         public SalaDto? Sala { get; set; }
-        public async Task<IActionResult> OnGetAsync(int id)
+        public async Task<IActionResult> OnGetAsync([FromRoute] int id)
         {
             var h = Http(); var resp = await h.GetAsync($"api/Salas/{id}");
-            if (!resp.IsSuccessStatusCode) return NotFound();
+            if (!resp.IsSuccessStatusCode)
+            {
+                TempData["Erro"] = $"Erro ao carregar dados (HTTP {(int)resp.StatusCode}). Verifique se a API está a correr.";
+                return RedirectToPage("Index");
+            }
             Sala = JsonSerializer.Deserialize<SalaDto>(await resp.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             return Page();
         }
-        public async Task<IActionResult> OnPostAsync(int id)
+        public async Task<IActionResult> OnPostAsync([FromRoute] int id)
         {
             var h = Http(); var resp = await h.DeleteAsync($"api/Salas/{id}");
             if (!resp.IsSuccessStatusCode) { var m = JsonSerializer.Deserialize<Dictionary<string,string>>(await resp.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true }); TempData["Erro"] = m?.GetValueOrDefault("mensagem") ?? "Erro ao eliminar."; }
             else TempData["Sucesso"] = "Sala eliminada.";
             return RedirectToPage("Index");
         }
-        private HttpClient Http() { var h = _f.CreateClient(); h.BaseAddress = new Uri(_c["ApiSettings:BaseUrl"]!); h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", HttpContext.Session.GetString("JWT")); return h; }
+        private HttpClient Http() { var h = _f.CreateClient(); h.BaseAddress = new Uri(_c["ApiSettings:BaseUrl"]!); h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", (HttpContext.Session.GetString("JWT") ?? User.FindFirst("jwt")?.Value ?? "")); return h; }
     }
 }
 
@@ -117,7 +125,7 @@ namespace GymManagement.Web.Pages.Utilizadores
         public DateTime DataRegisto { get; set; }
     }
 
-    public class IndexModel : PageModel
+    public partial class IndexModel : PageModel
     {
         private readonly IHttpClientFactory _f; private readonly IConfiguration _c;
         public IndexModel(IHttpClientFactory f, IConfiguration c) { _f = f; _c = c; }
@@ -126,41 +134,45 @@ namespace GymManagement.Web.Pages.Utilizadores
         {
             try { var h = Http(); var j = await h.GetStringAsync("api/Utilizadores"); Utilizadores = JsonSerializer.Deserialize<List<UtilizadorListDto>>(j, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new(); } catch { }
         }
-        private HttpClient Http() { var h = _f.CreateClient(); h.BaseAddress = new Uri(_c["ApiSettings:BaseUrl"]!); h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", HttpContext.Session.GetString("JWT")); return h; }
+        private HttpClient Http() { var h = _f.CreateClient(); h.BaseAddress = new Uri(_c["ApiSettings:BaseUrl"]!); h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", (HttpContext.Session.GetString("JWT") ?? User.FindFirst("jwt")?.Value ?? "")); return h; }
     }
 
-    public class ToggleAtivoModel : PageModel
+    public partial class ToggleAtivoModel : PageModel
     {
         private readonly IHttpClientFactory _f; private readonly IConfiguration _c;
         public ToggleAtivoModel(IHttpClientFactory f, IConfiguration c) { _f = f; _c = c; }
-        public async Task<IActionResult> OnGetAsync(int id)
+        public async Task<IActionResult> OnGetAsync([FromRoute] int id)
         {
             var h = _f.CreateClient(); h.BaseAddress = new Uri(_c["ApiSettings:BaseUrl"]!);
-            h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", HttpContext.Session.GetString("JWT"));
+            h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", (HttpContext.Session.GetString("JWT") ?? User.FindFirst("jwt")?.Value ?? ""));
             await h.PutAsync($"api/Utilizadores/{id}/ativar", null);
             TempData["Sucesso"] = "Estado do utilizador alterado.";
             return RedirectToPage("Index");
         }
     }
 
-    public class DeleteModel : PageModel
+    public partial class DeleteModel : PageModel
     {
         private readonly IHttpClientFactory _f; private readonly IConfiguration _c;
         public DeleteModel(IHttpClientFactory f, IConfiguration c) { _f = f; _c = c; }
         public UtilizadorListDto? Utilizador { get; set; }
-        public async Task<IActionResult> OnGetAsync(int id)
+        public async Task<IActionResult> OnGetAsync([FromRoute] int id)
         {
             var h = _f.CreateClient(); h.BaseAddress = new Uri(_c["ApiSettings:BaseUrl"]!);
-            h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", HttpContext.Session.GetString("JWT"));
+            h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", (HttpContext.Session.GetString("JWT") ?? User.FindFirst("jwt")?.Value ?? ""));
             var resp = await h.GetAsync($"api/Utilizadores/{id}");
-            if (!resp.IsSuccessStatusCode) return NotFound();
+            if (!resp.IsSuccessStatusCode)
+            {
+                TempData["Erro"] = $"Erro ao carregar dados (HTTP {(int)resp.StatusCode}). Verifique se a API está a correr.";
+                return RedirectToPage("Index");
+            }
             Utilizador = JsonSerializer.Deserialize<UtilizadorListDto>(await resp.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             return Page();
         }
-        public async Task<IActionResult> OnPostAsync(int id)
+        public async Task<IActionResult> OnPostAsync([FromRoute] int id)
         {
             var h = _f.CreateClient(); h.BaseAddress = new Uri(_c["ApiSettings:BaseUrl"]!);
-            h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", HttpContext.Session.GetString("JWT"));
+            h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", (HttpContext.Session.GetString("JWT") ?? User.FindFirst("jwt")?.Value ?? ""));
             await h.DeleteAsync($"api/Utilizadores/{id}");
             TempData["Sucesso"] = "Utilizador eliminado.";
             return RedirectToPage("Index");
@@ -193,7 +205,7 @@ namespace GymManagement.Web.Pages.Frequencias
         public string Email { get; set; } = string.Empty;
     }
 
-    public class IndexModel : PageModel
+    public partial class IndexModel : PageModel
     {
         private readonly IHttpClientFactory _f; private readonly IConfiguration _c;
         public IndexModel(IHttpClientFactory f, IConfiguration c) { _f = f; _c = c; }
@@ -203,7 +215,7 @@ namespace GymManagement.Web.Pages.Frequencias
 
         public async Task OnGetAsync()
         {
-            IsAdmin = HttpContext.Session.GetString("Role") == "Admin";
+            IsAdmin = User.IsInRole("Admin") || HttpContext.Session.GetString("Role") == "Admin";
             try
             {
                 var h = Http();
@@ -219,10 +231,10 @@ namespace GymManagement.Web.Pages.Frequencias
             catch { }
         }
 
-        private HttpClient Http() { var h = _f.CreateClient(); h.BaseAddress = new Uri(_c["ApiSettings:BaseUrl"]!); h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", HttpContext.Session.GetString("JWT")); return h; }
+        private HttpClient Http() { var h = _f.CreateClient(); h.BaseAddress = new Uri(_c["ApiSettings:BaseUrl"]!); h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", (HttpContext.Session.GetString("JWT") ?? User.FindFirst("jwt")?.Value ?? "")); return h; }
     }
 
-    public class EntradaModel : PageModel
+    public partial class EntradaModel : PageModel
     {
         private readonly IHttpClientFactory _f; private readonly IConfiguration _c;
         public EntradaModel(IHttpClientFactory f, IConfiguration c) { _f = f; _c = c; }
@@ -233,7 +245,7 @@ namespace GymManagement.Web.Pages.Frequencias
         {
             var h = _f.CreateClient();
             h.BaseAddress = new Uri(_c["ApiSettings:BaseUrl"]!);
-            h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", HttpContext.Session.GetString("JWT"));
+            h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", (HttpContext.Session.GetString("JWT") ?? User.FindFirst("jwt")?.Value ?? ""));
 
             HttpResponseMessage resp;
             if (utilizadorId > 0)
@@ -255,15 +267,15 @@ namespace GymManagement.Web.Pages.Frequencias
         }
     }
 
-    public class SaidaModel : PageModel
+    public partial class SaidaModel : PageModel
     {
         private readonly IHttpClientFactory _f; private readonly IConfiguration _c;
         public SaidaModel(IHttpClientFactory f, IConfiguration c) { _f = f; _c = c; }
-        public async Task<IActionResult> OnGetAsync(int id)
+        public async Task<IActionResult> OnGetAsync([FromRoute] int id)
         {
             var h = _f.CreateClient();
             h.BaseAddress = new Uri(_c["ApiSettings:BaseUrl"]!);
-            h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", HttpContext.Session.GetString("JWT"));
+            h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", (HttpContext.Session.GetString("JWT") ?? User.FindFirst("jwt")?.Value ?? ""));
             var resp = await h.PutAsync($"api/Frequencias/{id}/Saida", null);
             var json = await resp.Content.ReadAsStringAsync();
             string mensagem;
@@ -279,25 +291,25 @@ namespace GymManagement.Web.Pages.Frequencias
         }
     }
 
-    public class DeleteModel : PageModel
+    public partial class DeleteModel : PageModel
     {
         private readonly IHttpClientFactory _f; private readonly IConfiguration _c;
         public DeleteModel(IHttpClientFactory f, IConfiguration c) { _f = f; _c = c; }
         public FrequenciaListDto? Frequencia { get; set; }
-        public async Task<IActionResult> OnGetAsync(int id)
+        public async Task<IActionResult> OnGetAsync([FromRoute] int id)
         {
             var h = _f.CreateClient(); h.BaseAddress = new Uri(_c["ApiSettings:BaseUrl"]!);
-            h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", HttpContext.Session.GetString("JWT"));
+            h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", (HttpContext.Session.GetString("JWT") ?? User.FindFirst("jwt")?.Value ?? ""));
             var resp = await h.GetAsync("api/Frequencias");
             var lista = JsonSerializer.Deserialize<List<FrequenciaListDto>>(await resp.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new();
             Frequencia = lista.FirstOrDefault(f => f.Id == id);
-            if (Frequencia == null) return NotFound();
+            if (false) return NotFound(); // handled above
             return Page();
         }
-        public async Task<IActionResult> OnPostAsync(int id)
+        public async Task<IActionResult> OnPostAsync([FromRoute] int id)
         {
             var h = _f.CreateClient(); h.BaseAddress = new Uri(_c["ApiSettings:BaseUrl"]!);
-            h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", HttpContext.Session.GetString("JWT"));
+            h.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", (HttpContext.Session.GetString("JWT") ?? User.FindFirst("jwt")?.Value ?? ""));
             await h.DeleteAsync($"api/Frequencias/{id}");
             TempData["Sucesso"] = "Registo eliminado.";
             return RedirectToPage("Index");

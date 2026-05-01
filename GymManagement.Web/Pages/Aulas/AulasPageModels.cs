@@ -11,7 +11,7 @@ namespace GymManagement.Web.Pages.Aulas
     public class InstrutorSimples { public int Id { get; set; } public string Nome { get; set; } = ""; public string? Especialidade { get; set; } }
     public class SalaSimples { public int Id { get; set; } public string Nome { get; set; } = ""; public int CapacidadeMaxima { get; set; } }
 
-    public class IndexModel : PageModel
+    public partial class IndexModel : PageModel
     {
         private readonly ApiService _api;
         public IndexModel(ApiService api) => _api = api;
@@ -19,7 +19,7 @@ namespace GymManagement.Web.Pages.Aulas
         public async Task OnGetAsync() { try { Aulas = await _api.GetAulasAsync(); } catch { } }
     }
 
-    public class CreateModel : PageModel
+    public partial class CreateModel : PageModel
     {
         private readonly ApiService _api;
         private readonly IHttpClientFactory _factory;
@@ -111,7 +111,7 @@ namespace GymManagement.Web.Pages.Aulas
         }
     }
 
-    public class EditModel : PageModel
+    public partial class EditModel : PageModel
     {
         private readonly ApiService _api;
         private readonly IHttpClientFactory _factory;
@@ -204,7 +204,7 @@ namespace GymManagement.Web.Pages.Aulas
         }
     }
 
-    public class DeleteModel : PageModel
+    public partial class DeleteModel : PageModel
     {
         private readonly ApiService _api;
         public DeleteModel(ApiService api) => _api = api;
@@ -213,7 +213,7 @@ namespace GymManagement.Web.Pages.Aulas
         public async Task<IActionResult> OnPostAsync(int id) { await _api.DeleteAulaAsync(id); TempData["Sucesso"] = "Aula eliminada."; return RedirectToPage("Index"); }
     }
 
-    public class InscreverModel : PageModel
+    public partial class InscreverModel : PageModel
     {
         private readonly ApiService _api;
         public InscreverModel(ApiService api) => _api = api;

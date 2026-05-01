@@ -27,7 +27,8 @@ namespace GymManagement.Web.Services
         // ── Token JWT da sessão ──────────────────────────────────
         private void SetAuth()
         {
-            var token = _ctx.HttpContext?.Session.GetString("JWT");
+            var token = _ctx.HttpContext?.Session.GetString("JWT")
+                     ?? _ctx.HttpContext?.User.FindFirst("jwt")?.Value;
             if (!string.IsNullOrEmpty(token))
                 _http.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", token);

@@ -29,7 +29,8 @@ namespace GymManagement.Web.Pages.Aulas
         {
             var client = _clientFactory.CreateClient("GymAPI");
             // FIX: chave correta é "JWT", não "JwtToken"
-            var token = _httpContextAccessor.HttpContext?.Session.GetString("JWT");
+            var token = _httpContextAccessor.HttpContext?.Session.GetString("JWT")
+                     ?? _httpContextAccessor.HttpContext?.User.FindFirst("jwt")?.Value;
             if (!string.IsNullOrEmpty(token))
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             return client;

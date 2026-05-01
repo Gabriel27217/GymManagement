@@ -30,7 +30,15 @@ namespace GymManagement.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var s = await _db.Salas.Include(x => x.Aulas).FirstOrDefaultAsync(x => x.Id == id);
+            // FIX: projetar para anonymous type para evitar referência circular na serialização JSON
+            var s = await _db.Salas
+                .Include(x => x.Aulas)
+                .Where(x => x.Id == id)
+                .Select(x => new {
+                    x.Id, x.Nome, x.CapacidadeMaxima, x.Descricao, x.Ativa,
+                    TotalAulas = x.Aulas.Count
+                })
+                .FirstOrDefaultAsync();
             if (s == null) return NotFound();
             return Ok(s);
         }

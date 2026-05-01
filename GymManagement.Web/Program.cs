@@ -87,7 +87,7 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
     app.UseHsts();
-    app.UseHttpsRedirection(); // Só ativo em produção — em dev causaria redirect loop
+    app.UseHttpsRedirection(); // FIX: apenas em produção — em dev causa redirect loop
 }
 
 app.UseStaticFiles();

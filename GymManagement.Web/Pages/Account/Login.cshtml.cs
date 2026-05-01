@@ -102,7 +102,14 @@ namespace GymManagement.Web.Pages.Account
             var nameClaim = claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)
                          ?? claims.FirstOrDefault(c => c.Type == ClaimTypes.Name);
             if (nameClaim != null && !claims.Any(c => c.Type == ClaimTypes.Name))
-                claims.Add(new Claim(ClaimTypes.Name, nameClaim.Value));
+                claims.Add(new Claim(ClaimTypes.Name, nome));
+
+            // FIX: guardar Role, JWT e Nome como claims no cookie
+            // Permite que page models usem User.FindFirst("jwt") como fallback quando sessão expira
+            if (!claims.Any(c => c.Type == ClaimTypes.Role))
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            claims.Add(new Claim("jwt", token));
+            claims.Add(new Claim("nome", nome));
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);

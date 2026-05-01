@@ -1,9 +1,9 @@
 @page
 @model GymManagement.Web.Pages.PlanosTreino.IndexModel
-@using Microsoft.AspNetCore.Http
 @{
     ViewData["Title"] = "Planos de Treino";
-    var sessaoRole = HttpContext.Session.GetString("Role");
+    // FIX: usar cookie claim em vez de sessão (sessão pode estar vazia após redirect)
+    var isAdmin = User.IsInRole("Admin") || HttpContext.Session.GetString("Role") == "Admin";
 }
 
 <div class="page-header">
@@ -13,7 +13,7 @@
 </div>
 
 <div class="d-flex justify-content-end mb-3">
-    @if (sessaoRole == "Admin")
+    @if (isAdmin)
     {
         <a asp-page="Create" class="btn btn-accent btn-sm">
             <i class="bi bi-plus-circle me-1"></i>Novo Plano
@@ -39,7 +39,7 @@
                         <div><span class="badge" style="background:var(--gym-accent);color:#000">@p.Nivel</span></div>
                     </div>
                 </div>
-                @if (sessaoRole == "Admin")
+                @if (isAdmin)
                 {
                     <div class="card-footer bg-transparent d-flex gap-2">
                         <a asp-page="Edit" asp-route-id="@p.Id" class="btn btn-sm btn-outline-primary">

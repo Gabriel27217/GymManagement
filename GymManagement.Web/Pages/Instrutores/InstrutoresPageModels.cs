@@ -18,7 +18,7 @@ namespace GymManagement.Web.Pages.Instrutores
         public int TotalAulas { get; set; }
     }
 
-    public class IndexModel : PageModel
+    public partial class IndexModel : PageModel
     {
         private readonly IHttpClientFactory _factory;
         private readonly IConfiguration _config;
@@ -41,14 +41,14 @@ namespace GymManagement.Web.Pages.Instrutores
         {
             var http = _factory.CreateClient();
             http.BaseAddress = new Uri(_config["ApiSettings:BaseUrl"]!);
-            var token = HttpContext.Session.GetString("JWT");
+            var token = (HttpContext.Session.GetString("JWT") ?? User.FindFirst("jwt")?.Value ?? "");
             if (!string.IsNullOrEmpty(token))
                 http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             return http;
         }
     }
 
-    public class CreateModel : PageModel
+    public partial class CreateModel : PageModel
     {
         private readonly IHttpClientFactory _factory;
         private readonly IConfiguration _config;
@@ -77,12 +77,12 @@ namespace GymManagement.Web.Pages.Instrutores
         {
             var http = _factory.CreateClient();
             http.BaseAddress = new Uri(_config["ApiSettings:BaseUrl"]!);
-            http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", HttpContext.Session.GetString("JWT"));
+            http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", (HttpContext.Session.GetString("JWT") ?? User.FindFirst("jwt")?.Value ?? ""));
             return http;
         }
     }
 
-    public class EditModel : PageModel
+    public partial class EditModel : PageModel
     {
         private readonly IHttpClientFactory _factory;
         private readonly IConfiguration _config;
@@ -95,15 +95,29 @@ namespace GymManagement.Web.Pages.Instrutores
         [BindProperty, Display(Name = "Telefone")] public string? Telefone { get; set; }
         [BindProperty, Display(Name = "Ativo")] public bool Ativo { get; set; } = true;
 
-        public async Task<IActionResult> OnGetAsync(int id)
+        public string? ErroMsg { get; set; }
+
+        public async Task<IActionResult> OnGetAsync([FromRoute] int id)
         {
-            var http = CriarCliente();
-            var resp = await http.GetAsync($"api/Instrutores/{id}");
-            if (!resp.IsSuccessStatusCode) return NotFound();
-            var json = await resp.Content.ReadAsStringAsync();
-            var i = JsonSerializer.Deserialize<InstrutorDto>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            if (i == null) return NotFound();
-            InstrutorId = i.Id; Nome = i.Nome; Email = i.Email; Especialidade = i.Especialidade; Telefone = i.Telefone; Ativo = i.Ativo;
+            try
+            {
+                var http = CriarCliente();
+                var resp = await http.GetAsync($"api/Instrutores/{id}");
+                if (!resp.IsSuccessStatusCode)
+                {
+                    TempData["Erro"] = $"Não foi possível carregar o instrutor (HTTP {(int)resp.StatusCode}).";
+                    return RedirectToPage("Index");
+                }
+                var json = await resp.Content.ReadAsStringAsync();
+                var i = JsonSerializer.Deserialize<InstrutorDto>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                if (i == null) { TempData["Erro"] = "Instrutor não encontrado."; return RedirectToPage("Index"); }
+                InstrutorId = i.Id; Nome = i.Nome; Email = i.Email; Especialidade = i.Especialidade; Telefone = i.Telefone; Ativo = i.Ativo;
+            }
+            catch (Exception ex)
+            {
+                TempData["Erro"] = $"Erro ao ligar à API: {ex.Message}";
+                return RedirectToPage("Index");
+            }
             return Page();
         }
 
@@ -122,19 +136,19 @@ namespace GymManagement.Web.Pages.Instrutores
         {
             var http = _factory.CreateClient();
             http.BaseAddress = new Uri(_config["ApiSettings:BaseUrl"]!);
-            http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", HttpContext.Session.GetString("JWT"));
+            http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", (HttpContext.Session.GetString("JWT") ?? User.FindFirst("jwt")?.Value ?? ""));
             return http;
         }
     }
 
-    public class DeleteModel : PageModel
+    public partial class DeleteModel : PageModel
     {
         private readonly IHttpClientFactory _factory;
         private readonly IConfiguration _config;
         public DeleteModel(IHttpClientFactory factory, IConfiguration config) { _factory = factory; _config = config; }
         public InstrutorDto? Instrutor { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(int id)
+        public async Task<IActionResult> OnGetAsync([FromRoute] int id)
         {
             var http = CriarCliente();
             var resp = await http.GetAsync($"api/Instrutores/{id}");
@@ -162,7 +176,7 @@ namespace GymManagement.Web.Pages.Instrutores
         {
             var http = _factory.CreateClient();
             http.BaseAddress = new Uri(_config["ApiSettings:BaseUrl"]!);
-            http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", HttpContext.Session.GetString("JWT"));
+            http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", (HttpContext.Session.GetString("JWT") ?? User.FindFirst("jwt")?.Value ?? ""));
             return http;
         }
     }
